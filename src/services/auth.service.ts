@@ -9,6 +9,15 @@ import { emailService } from './email.service';
 export class AuthService implements IAuthService {
   private jwtSecret = process.env.JWT_SECRET!;
 
+  constructor() {
+    // Debug: Verificar se JWT_SECRET está carregado
+    console.log('=== AUTH SERVICE DEBUG ===');
+    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
+    console.log('JWT_SECRET first 10 chars:', process.env.JWT_SECRET?.substring(0, 10) || 'NOT_SET');
+    console.log('==========================');
+  }
+
   async register(data: CreateUserData): Promise<AuthResult> {
     try {
       const existingUser = await userRepository.findByEmail(data.email);
@@ -63,16 +72,25 @@ export class AuthService implements IAuthService {
 
   async login(data: LoginData): Promise<AuthResult> {
     try {
+      console.log('=== LOGIN DEBUG ===');
+      console.log('Email recebido:', data.email);
+      
       const user = await userRepository.findByEmail(data.email);
+      console.log('Usuário encontrado:', !!user);
       
       if (!user) {
+        console.log('Usuário não encontrado');
         return {
           success: false,
           message: 'Email ou senha incorretos'
         };
       }
 
+      console.log('Email verificado:', user.email_verificado);
+      console.log('Usuário ativo:', user.ativo);
+      
       if (!user.email_verificado) {
+        console.log('Email não verificado');
         return {
           success: false,
           message: 'Email não verificado. Verifique sua caixa de entrada.'
@@ -80,25 +98,33 @@ export class AuthService implements IAuthService {
       }
 
       if (!user.ativo) {
+        console.log('Usuário inativo');
         return {
           success: false,
           message: 'Conta desativada. Entre em contato com o suporte.'
         };
       }
 
+      console.log('Verificando senha...');
       const isValidPassword = await this.comparePassword(data.senha, user.senha_hash);
+      console.log('Senha válida:', isValidPassword);
       
       if (!isValidPassword) {
+        console.log('Senha inválida');
         return {
           success: false,
           message: 'Email ou senha incorretos'
         };
       }
 
+      console.log('Atualizando último acesso...');
       await userRepository.updateLastAccess(user.id);
 
+      console.log('Gerando JWT...');
       const token = await this.generateJWT(user.id, user.email, user.plano_id || '');
+      console.log('JWT gerado com sucesso');
 
+      console.log('Login bem-sucedido');
       return {
         success: true,
         message: 'Login realizado com sucesso',
