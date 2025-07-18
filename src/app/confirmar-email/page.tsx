@@ -69,7 +69,7 @@ function ConfirmarEmailContent() {
       if (result.success) {
         setSuccess(result.message);
         setTimeout(() => {
-          router.push('/home');
+          router.push('/');
         }, 2000);
       } else {
         if (result.errors) {

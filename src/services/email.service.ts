@@ -203,7 +203,7 @@ export class EmailService implements IEmailService {
             <p>Você agora tem acesso completo à plataforma e pode começar a usar todos os recursos disponíveis.</p>
             <p><strong>Período de teste gratuito:</strong> Você tem 7 dias gratuitos para explorar todas as funcionalidades.</p>
             <p style="text-align: center;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/home" class="button">Acessar Dashboard</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/" class="button">Acessar Dashboard</a>
             </p>
             <p>Se você tiver alguma dúvida ou precisar de ajuda, não hesite em entrar em contato conosco.</p>
           </div>
