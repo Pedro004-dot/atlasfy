@@ -1,0 +1,19 @@
+:root {
+  --background: oklch(0.13 0 0);
+  --foreground: oklch(0.98 0 0);
+  --display-bg: oklch(0.18 0 0);
+  --display-fg: oklch(0.98 0 0);
+  --button-bg: oklch(0.22 0 0);
+  --button-fg: oklch(0.98 0 0);
+  --button-operator-bg: oklch(0.75 0.22 50); /* vibrant orange */
+  --button-operator-fg: oklch(0.98 0 0);
+  --button-special-bg: oklch(0.32 0 0);
+  --button-special-fg: oklch(0.98 0 0);
+  --button-equals-bg: oklch(0.75 0.22 50); /* orange accent */
+  --button-equals-fg: oklch(0.98 0 0);
+  --border: oklch(0.22 0 0);
+  --radius: 1.5rem;
+  --shadow: 0 4px 24px 0 oklch(0 0 0 / 0.18);
+  --font-sans: 'Inter', sans-serif;
+  --spacing: 1.2rem;
+}

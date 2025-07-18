@@ -1,0 +1,5 @@
+{
+  "/api/upload/product-image/route": "app/api/upload/product-image/route.js",
+  "/api/evolution/create-instance/route": "app/api/evolution/create-instance/route.js",
+  "/api/user-connection-status/[instanceName]/route": "app/api/user-connection-status/[instanceName]/route.js"
+}

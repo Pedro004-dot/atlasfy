@@ -1,0 +1,19 @@
+:root {
+  --background: oklch(0.15 0 0); /* almost black */
+  --foreground: oklch(0.98 0 0); /* white */
+  --display-bg: oklch(0.22 0 0); /* slightly lighter dark */
+  --display-fg: oklch(0.98 0 0); /* white */
+  --button-bg: oklch(0.22 0 0); /* dark gray */
+  --button-fg: oklch(0.98 0 0); /* white */
+  --button-operator-bg: oklch(0.65 0.18 300); /* soft purple */
+  --button-operator-fg: oklch(0.98 0 0); /* white */
+  --button-special-bg: oklch(0.32 0 0); /* muted gray */
+  --button-special-fg: oklch(0.98 0 0); /* white */
+  --button-equals-bg: oklch(0.65 0.18 300); /* purple accent */
+  --button-equals-fg: oklch(0.98 0 0); /* white */
+  --border: oklch(0.22 0 0);
+  --radius: 1rem;
+  --shadow: 0 4px 24px 0 oklch(0 0 0 / 0.25);
+  --font-sans: 'Inter', sans-serif;
+  --spacing: 1rem;
+}

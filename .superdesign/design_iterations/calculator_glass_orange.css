@@ -1,0 +1,20 @@
+:root {
+  --background: oklch(0.15 0 0 / 0.7); /* glassy dark with opacity */
+  --foreground: oklch(0.98 0 0);
+  --display-bg: oklch(0.22 0 0 / 0.6); /* frosted glass */
+  --display-fg: oklch(0.98 0 0);
+  --button-bg: oklch(0.22 0 0 / 0.7);
+  --button-fg: oklch(0.98 0 0);
+  --button-operator-bg: oklch(0.75 0.22 50); /* vibrant orange */
+  --button-operator-fg: oklch(0.98 0 0);
+  --button-special-bg: oklch(0.32 0 0 / 0.7);
+  --button-special-fg: oklch(0.98 0 0);
+  --button-equals-bg: oklch(0.75 0.22 50); /* orange accent */
+  --button-equals-fg: oklch(0.98 0 0);
+  --border: oklch(0.22 0 0 / 0.2);
+  --radius: 1.5rem;
+  --shadow: 0 8px 32px 0 oklch(0 0 0 / 0.25);
+  --glass-blur: blur(16px);
+  --font-sans: 'Inter', sans-serif;
+  --spacing: 1.2rem;
+}

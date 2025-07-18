@@ -1,0 +1,520 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    /* Light Mode - Cores Principais */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 0 100% 60%;  /* Vermelho vibrante também no modo light */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 0 100% 60%;  /* Ring vermelho também no modo light */
+    
+    /* Charts Light Mode - Tons de vermelho */
+    --chart-1: oklch(0.8 0.15 25);    /* Vermelho claro */
+    --chart-2: oklch(0.7 0.20 25);    /* Vermelho médio */
+    --chart-3: oklch(0.6 0.25 25);    /* Vermelho normal */
+    --chart-4: oklch(0.55 0.25 25);   /* Vermelho escuro */
+    --chart-5: oklch(0.5 0.22 25);    /* Vermelho mais escuro */
+    
+    /* Sidebar Light Mode */
+    --sidebar: 210 40% 98%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 0 100% 60%; /* Vermelho para elementos ativos */
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222.2 84% 4.9%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 0 100% 60%; /* Ring vermelho na sidebar */
+    
+    /* Typography e Spacing */
+    --font-sans: Inter, sans-serif;
+    --font-serif: Inter, sans-serif;
+    --font-mono: Inter, sans-serif;
+    --radius: 0.625rem;
+    --radius-sm: calc(0.625rem - 4px);
+    --radius-md: calc(0.625rem - 2px);
+    --radius-lg: 0.625rem;
+    --radius-xl: calc(0.625rem + 4px);
+    --spacing: 0.25rem;
+    --tracking-normal: 0.025em;
+    
+    /* Sombras */
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  }
+
+  .dark {
+    /* Dark Mode - Cores Principais (Esquema Preto/Cinza com Vermelho) */
+    --background: 0 0% 7%;  /* Preto muito escuro #121212 */
+    --foreground: 0 0% 98%; /* Branco quase puro para texto */
+    --card: 0 0% 12%;       /* Cinza escuro para cards #1f1f1f */
+    --card-foreground: 0 0% 98%; /* Texto claro nos cards */
+    --primary: 0 100% 60%;  /* Vermelho vibrante #FF3333 */
+    --primary-foreground: 0 0% 98%; /* Texto branco no vermelho */
+    --secondary: 0 0% 15%;  /* Cinza escuro para elementos secundários #262626 */
+    --secondary-foreground: 0 0% 90%; /* Texto claro no cinza */
+    --muted: 0 0% 12%;      /* Cinza mais escuro para áreas desabilitadas #1f1f1f */
+    --muted-foreground: 0 0% 60%; /* Texto médio para elementos muted #999999 */
+    --accent: 0 0% 18%;     /* Cinza para hover/accent #2d2d2d */
+    --accent-foreground: 0 0% 95%; /* Texto no accent */
+    --destructive: 0 100% 55%; /* Vermelho para ações destrutivas */
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;     /* Bordas cinza escuras #333333 */
+    --input: 0 0% 13%;      /* Fundo de inputs cinza muito escuro #212121 */
+    --ring: 0 100% 60%;     /* Ring vermelho para focus */
+    
+    /* Charts Dark Mode - Tons de vermelho e cinza */
+    --chart-1: oklch(0.7 0.25 25);    /* Vermelho médio */
+    --chart-2: oklch(0.6 0.30 25);    /* Vermelho mais escuro */
+    --chart-3: oklch(0.5 0.25 25);    /* Vermelho escuro */
+    --chart-4: oklch(0.4 0.20 25);    /* Vermelho muito escuro */
+    --chart-5: oklch(0.6 0 0);        /* Cinza médio */
+    
+    /* Sidebar Dark Mode */
+    --sidebar: 0 0% 10%;     /* Sidebar ainda mais escura #0d0d0d */
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 100% 60%; /* Vermelho para elementos ativos */
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 15%; /* Cinza para hover na sidebar */
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 18%; /* Bordas da sidebar */
+    --sidebar-ring: 0 100% 60%; /* Ring vermelho na sidebar */
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  html {
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  /* Aplicar Inter font em todos os elementos */
+  h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, label {
+    font-family: var(--font-sans) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+}
+
+@layer components {
+  /* Componentes baseados no design system */
+  .atlas-card {
+    @apply bg-card text-card-foreground shadow-md border border-border;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .atlas-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+  }
+  
+  .atlas-button {
+    @apply inline-flex items-center justify-center;
+    font-family: var(--font-sans) !important;
+    font-weight: 500;
+    letter-spacing: var(--tracking-normal) !important;
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+  }
+  
+  .atlas-button-primary {
+    @apply atlas-button bg-primary text-primary-foreground;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .atlas-button-primary:hover {
+    background-color: hsl(var(--primary) / 0.9);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  
+  .atlas-button-secondary {
+    @apply atlas-button bg-secondary text-secondary-foreground;
+    border: 1px solid hsl(var(--border));
+  }
+  
+  .atlas-button-secondary:hover {
+    background-color: hsl(var(--secondary) / 0.8);
+  }
+  
+  .atlas-input {
+    @apply flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground;
+    font-family: var(--font-sans) !important;
+    letter-spacing: var(--tracking-normal) !important;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+  }
+  
+  .atlas-input:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+  }
+  
+  .atlas-input:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  
+  .atlas-label {
+    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
+    font-family: var(--font-sans) !important;
+    letter-spacing: var(--tracking-normal) !important;
+    color: hsl(var(--foreground));
+  }
+  
+  .atlas-heading {
+    font-family: var(--font-sans) !important;
+    font-weight: 600;
+    letter-spacing: var(--tracking-normal) !important;
+    color: hsl(var(--foreground));
+  }
+  
+  .atlas-text {
+    font-family: var(--font-sans) !important;
+    letter-spacing: var(--tracking-normal) !important;
+    color: hsl(var(--foreground));
+  }
+  
+  .atlas-muted {
+    @apply text-muted-foreground;
+    font-family: var(--font-sans) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+  
+  /* Estados de feedback */
+  .atlas-success {
+    @apply border-green-500 bg-green-50 text-green-700;
+  }
+  
+  .atlas-error {
+    @apply border-red-500 bg-red-50 text-red-700;
+  }
+  
+  .atlas-warning {
+    @apply border-yellow-500 bg-yellow-50 text-yellow-700;
+  }
+  
+  .atlas-info {
+    @apply border-red-500 bg-red-50 text-red-700;
+  }
+  
+  .dark .atlas-success {
+    @apply border-green-400 bg-green-900/20 text-green-300;
+  }
+  
+  .dark .atlas-error {
+    @apply border-red-400 bg-red-900/20 text-red-300;
+  }
+  
+  .dark .atlas-warning {
+    @apply border-yellow-400 bg-yellow-900/20 text-yellow-300;
+  }
+  
+  .dark .atlas-info {
+    @apply border-red-400 bg-red-900/20 text-red-300;
+  }
+}
+
+@layer utilities {
+  /* CSS Custom Properties para usar com Tailwind */
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
+  
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
+  
+  .bg-card {
+    background-color: hsl(var(--card));
+  }
+  
+  .text-card-foreground {
+    color: hsl(var(--card-foreground));
+  }
+  
+  .bg-primary {
+    background-color: hsl(var(--primary));
+  }
+  
+  .text-primary {
+    color: hsl(var(--primary));
+  }
+  
+  .text-primary-foreground {
+    color: hsl(var(--primary-foreground));
+  }
+  
+  .bg-secondary {
+    background-color: hsl(var(--secondary));
+  }
+  
+  .text-secondary-foreground {
+    color: hsl(var(--secondary-foreground));
+  }
+  
+  .bg-muted {
+    background-color: hsl(var(--muted));
+  }
+  
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .bg-accent {
+    background-color: hsl(var(--accent));
+  }
+  
+  .text-accent-foreground {
+    color: hsl(var(--accent-foreground));
+  }
+  
+  .bg-destructive {
+    background-color: hsl(var(--destructive));
+  }
+  
+  .text-destructive {
+    color: hsl(var(--destructive));
+  }
+  
+  .text-destructive-foreground {
+    color: hsl(var(--destructive-foreground));
+  }
+  
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+  
+  .border-input {
+    border-color: hsl(var(--input));
+  }
+  
+  .ring-ring {
+    --tw-ring-color: hsl(var(--ring));
+  }
+  
+  .bg-sidebar {
+    background-color: hsl(var(--sidebar));
+  }
+  
+  .text-sidebar-foreground {
+    color: hsl(var(--sidebar-foreground));
+  }
+  
+  .bg-sidebar-primary {
+    background-color: hsl(var(--sidebar-primary));
+  }
+  
+  .text-sidebar-primary-foreground {
+    color: hsl(var(--sidebar-primary-foreground));
+  }
+  
+  .bg-sidebar-accent {
+    background-color: hsl(var(--sidebar-accent));
+  }
+  
+  .text-sidebar-accent-foreground {
+    color: hsl(var(--sidebar-accent-foreground));
+  }
+  
+  .border-sidebar-border {
+    border-color: hsl(var(--sidebar-border));
+  }
+  
+  /* Classes com opacidade para evitar erros */
+  .bg-primary\/90 {
+    background-color: hsl(var(--primary) / 0.9);
+  }
+  
+  .bg-primary\/10 {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+  
+  .bg-secondary\/80 {
+    background-color: hsl(var(--secondary) / 0.8);
+  }
+  
+  .bg-destructive\/90 {
+    background-color: hsl(var(--destructive) / 0.9);
+  }
+  
+  .bg-destructive\/10 {
+    background-color: hsl(var(--destructive) / 0.1);
+  }
+  
+  .text-primary\/80 {
+    color: hsl(var(--primary) / 0.8);
+  }
+  
+  .hover\:bg-primary\/90:hover {
+    background-color: hsl(var(--primary) / 0.9);
+  }
+  
+  .hover\:bg-secondary\/80:hover {
+    background-color: hsl(var(--secondary) / 0.8);
+  }
+  
+  .hover\:bg-destructive\/90:hover {
+    background-color: hsl(var(--destructive) / 0.9);
+  }
+  
+  .hover\:text-primary\/80:hover {
+    color: hsl(var(--primary) / 0.8);
+  }
+
+  /* Animações customizadas */
+  .animate-in {
+    animation: animateIn 0.3s ease-out;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .animate-slide-in-from-right {
+    animation: slideInFromRight 0.3s ease-out;
+  }
+  
+  .animate-bounce-in {
+    animation: bounceIn 0.4s ease-out;
+  }
+  
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+    70% {
+      transform: scale(0.9);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Utilitários para o design system */
+  .text-atlas-primary {
+    color: hsl(var(--primary));
+  }
+  
+  .text-atlas-secondary {
+    color: hsl(var(--secondary-foreground));
+  }
+  
+  .text-atlas-muted {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .bg-atlas-primary {
+    background-color: hsl(var(--primary));
+  }
+  
+  .bg-atlas-secondary {
+    background-color: hsl(var(--secondary));
+  }
+  
+  .bg-atlas-muted {
+    background-color: hsl(var(--muted));
+  }
+  
+  .border-atlas-primary {
+    border-color: hsl(var(--primary));
+  }
+  
+  .border-atlas-secondary {
+    border-color: hsl(var(--border));
+  }
+  
+  .shadow-atlas-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .shadow-atlas-md {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .shadow-atlas-lg {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .rounded-atlas {
+    border-radius: var(--radius);
+  }
+  
+  .rounded-atlas-sm {
+    border-radius: var(--radius-sm);
+  }
+  
+  .rounded-atlas-lg {
+    border-radius: var(--radius-lg);
+  }
+}
