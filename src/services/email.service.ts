@@ -5,30 +5,49 @@ export class EmailService implements IEmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
+    // Limpar e validar variáveis de ambiente
+    const smtpHost = process.env.SMTP_HOST?.trim();
+    const smtpPort = process.env.SMTP_PORT?.trim();
+    const smtpUser = process.env.SMTP_USER?.trim();
+    const smtpPass = process.env.SMTP_PASS?.trim();
+    
+    console.log('=== EMAIL SERVICE DEBUG ===');
+    console.log('SMTP_HOST:', smtpHost);
+    console.log('SMTP_PORT:', smtpPort);
+    console.log('SMTP_USER exists:', !!smtpUser);
+    console.log('SMTP_PASS exists:', !!smtpPass);
+    console.log('==========================');
+    
+    if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+      throw new Error('Configuração SMTP incompleta');
+    }
+    
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST!,
-      port: parseInt(process.env.SMTP_PORT!),
+      host: smtpHost,
+      port: parseInt(smtpPort),
       secure: false,
       auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASS!,
+        user: smtpUser,
+        pass: smtpPass,
       },
     });
   }
 
   async sendVerificationEmail(email: string, token: string, nome: string): Promise<void> {
     const mailOptions = {
-      from: process.env.SMTP_USER!,
+      from: process.env.SMTP_USER?.trim()!,
       to: email,
       subject: 'Verifique seu email - Atlas Auth',
       html: this.getVerificationEmailTemplate(nome, token, email),
     };
 
     try {
+      console.log('Enviando email de verificação para:', email);
       await this.transporter.sendMail(mailOptions);
+      console.log('Email de verificação enviado com sucesso');
     } catch (error) {
-      console.error('Erro ao enviar email de verificação:', error);
-      throw new Error('Erro ao enviar email de verificação');
+      console.error('Erro detalhado ao enviar email de verificação:', error);
+      throw new Error(`Erro ao enviar email de verificação: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
