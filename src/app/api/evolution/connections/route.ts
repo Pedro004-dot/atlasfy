@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyJWT } from '@/lib/auth';
 
+// Força a rota a ser dinâmica
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     // Verificar autenticação

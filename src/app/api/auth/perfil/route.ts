@@ -4,6 +4,10 @@ import { userProfileService } from '@/services/UserProfileService';
 import { validateUpdateUserProfile } from '@/lib/validations';
 import { handleError } from '@/lib/error-handler';
 
+// Força a rota a ser dinâmica
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const userId = request.headers.get('x-user-id');

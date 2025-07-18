@@ -6,6 +6,9 @@ import { Alert } from '@/components/ui/alert';
 import { getDaysUntilExpiration, isTrialExpired, formatDate } from '@/lib/utils';
 import LogoutButton from './logout-button';
 
+// Força a página a ser dinâmica
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const user = await getCurrentUser();
 
