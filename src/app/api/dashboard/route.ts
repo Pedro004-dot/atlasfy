@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dashboardService } from '@/services/dashboard.service';
 import { authService } from '@/services/auth.service';
 
+// Força a rota a ser dinâmica
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     // Verificar autenticação

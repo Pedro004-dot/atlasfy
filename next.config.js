@@ -10,6 +10,15 @@ const nextConfig = {
     SMTP_USER: process.env.SMTP_USER,
     SMTP_PASS: process.env.SMTP_PASS,
   },
+  // Configurações para resolver problemas de renderização estática
+  experimental: {
+    serverComponentsExternalPackages: ['bcryptjs']
+  },
+  // Configurações de imagens
+  images: {
+    domains: ['localhost'],
+    unoptimized: true
+  }
 }
 
 module.exports = nextConfig
