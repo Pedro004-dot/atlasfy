@@ -3,17 +3,27 @@ import { IDatabaseService } from '@/types/services';
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 
 class DatabaseService implements IDatabaseService {
   private supabase;
 
   constructor() {
+    console.log('=== DATABASE SERVICE DEBUG ===');
+    console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
+    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
+    
+    // Tentar usar service role key primeiro, se falhar usar anon key
     this.supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     });
+    
+    console.log('Supabase client created with service role key');
+    console.log('===============================');
   }
 
 
@@ -46,6 +56,26 @@ class DatabaseService implements IDatabaseService {
 
   getClient() {
     return this.supabase;
+  }
+  
+  // Método para testar conexão
+  async testConnection() {
+    try {
+      const { data, error } = await this.supabase
+        .from('usuario')
+        .select('count')
+        .limit(1);
+      
+      if (error) {
+        console.error('Connection test failed:', error);
+        return { success: false, error: error.message };
+      }
+      
+      return { success: true, data };
+    } catch (error) {
+      console.error('Connection test error:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 }
 
