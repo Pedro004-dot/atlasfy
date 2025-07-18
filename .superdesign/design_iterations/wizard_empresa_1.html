@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wizard de Criação de Empresa - IA WhatsApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: rgb(255, 255, 255);
+      --foreground: rgb(10, 10, 10);
+      --card: rgb(255, 255, 255);
+      --card-foreground: rgb(10, 10, 10);
+      --popover: rgb(255, 255, 255);
+      --popover-foreground: rgb(10, 10, 10);
+      --primary: rgb(255, 38, 0);
+      --primary-foreground: rgb(254, 242, 242);
+      --secondary: rgb(245, 245, 245);
+      --secondary-foreground: rgb(23, 23, 23);
+      --muted: rgb(245, 245, 245);
+      --muted-foreground: rgb(115, 115, 115);
+      --accent: rgb(245, 245, 245);
+      --accent-foreground: rgb(23, 23, 23);
+      --destructive: rgb(231, 0, 11);
+      --destructive-foreground: rgb(255, 255, 255);
+      --border: rgb(229, 229, 229);
+      --input: rgb(229, 229, 229);
+      --ring: rgb(161, 161, 161);
+      --font-sans: Inter, sans-serif;
+      --font-mono: JetBrains Mono, monospace;
+      --radius: 0.625rem;
+    }
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      letter-spacing: 0.025em;
+    }
+    .card {
+      background: var(--card);
+      color: var(--card-foreground);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+    }
+    .step-active {
+      color: var(--primary) !important;
+      font-weight: 600;
+    }
+    .step-done {
+      color: var(--primary);
+    }
+    .step {
+      color: var(--muted-foreground);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-radius: var(--radius);
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      filter: brightness(0.95);
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--primary);
+      background: transparent;
+      border-radius: var(--radius);
+    }
+    .input {
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+    label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-md mx-auto p-4">
+    <div class="card p-8 shadow-md">
+      <!-- Wizard Steps -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex-1 flex flex-col items-center">
+          <span class="step-active">1</span>
+          <span class="text-xs mt-1 step-active">Empresa</span>
+        </div>
+        <div class="flex-1 h-0.5 bg-gray-200 mx-2"></div>
+        <div class="flex-1 flex flex-col items-center">
+          <span class="step">2</span>
+          <span class="text-xs mt-1 step">Agente</span>
+        </div>
+        <div class="flex-1 h-0.5 bg-gray-200 mx-2"></div>
+        <div class="flex-1 flex flex-col items-center">
+          <span class="step">3</span>
+          <span class="text-xs mt-1 step">WhatsApp</span>
+        </div>
+      </div>
+      <!-- Step 1: Empresa -->
+      <form>
+        <div class="mb-4">
+          <label for="nomeEmpresa">Nome da Empresa</label>
+          <input id="nomeEmpresa" class="input" type="text" placeholder="Ex: Loja do João" />
+        </div>
+        <div class="mb-4">
+          <label for="cnpj">CNPJ</label>
+          <input id="cnpj" class="input" type="text" placeholder="00.000.000/0001-00" />
+        </div>
+        <div class="mb-4">
+          <label for="descEmpresa">Descrição</label>
+          <textarea id="descEmpresa" class="input" rows="2" placeholder="Breve descrição da empresa..."></textarea>
+        </div>
+        <div class="mb-6">
+          <label for="tipoNegocio">Tipo de Negócio</label>
+          <div class="flex gap-4 mt-1">
+            <label class="flex items-center gap-1">
+              <input type="radio" name="tipoNegocio" value="fisica" class="accent-[var(--primary)]" checked />
+              Loja Física
+            </label>
+            <label class="flex items-center gap-1">
+              <input type="radio" name="tipoNegocio" value="online" class="accent-[var(--primary)]" />
+              Online
+            </label>
+            <label class="flex items-center gap-1">
+              <input type="radio" name="tipoNegocio" value="ambos" class="accent-[var(--primary)]" />
+              Ambos
+            </label>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="btn-outline px-4 py-2">Cancelar</button>
+          <button type="submit" class="btn-primary px-4 py-2">Próximo</button>
+        </div>
+      </form>
+    </div>
+    <p class="text-xs text-gray-400 text-center mt-4">Etapa 1 de 3</p>
+  </div>
+</body>
+</html>

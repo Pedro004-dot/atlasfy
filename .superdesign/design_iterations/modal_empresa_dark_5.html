@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conexão WhatsApp - Dark</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: rgb(10, 10, 10);
+      --foreground: rgb(250, 250, 250);
+      --card: rgb(23, 23, 23);
+      --card-foreground: rgb(250, 250, 250);
+      --primary: rgb(255, 38, 0);
+      --primary-foreground: rgb(255, 255, 255);
+      --border: rgb(40, 40, 40);
+      --input: rgb(52, 52, 52);
+      --radius: 0.625rem;
+    }
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.025em;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: var(--card);
+      color: var(--card-foreground);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 16px 0 rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      min-width: 350px;
+      max-width: 400px;
+      width: 100%;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-radius: var(--radius);
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      border: none;
+      transition: filter 0.15s;
+    }
+    .btn-primary:hover {
+      filter: brightness(0.95);
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--primary);
+      background: transparent;
+      border-radius: var(--radius);
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-outline:hover {
+      background: var(--input);
+      color: var(--primary-foreground);
+    }
+    .qr-box {
+      background: var(--input);
+      border-radius: var(--radius);
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+      color: #888;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card p-8">
+    <h2 class="text-xl font-bold mb-6 text-center">Conexão WhatsApp</h2>
+    <div class="mb-6 text-center">
+      <div class="qr-box mb-4">[QR CODE]</div>
+      <div class="text-sm mb-2">Escaneie para conectar seu WhatsApp</div>
+      <button class="btn-outline mb-4">Gerar Novo QR Code</button>
+      <div class="text-xs text-gray-400">1. Abra o WhatsApp no seu celular<br>2. Toque em Menu (⋮) &gt; Dispositivos conectados<br>3. Toque em "Conectar um dispositivo"<br>4. Aponte a câmera para o QR code acima</div>
+    </div>
+    <div class="flex justify-between mt-8">
+      <button type="button" class="btn-outline">Voltar</button>
+      <button type="submit" class="btn-primary">Finalizar</button>
+    </div>
+  </div>
+</body>
+</html>
