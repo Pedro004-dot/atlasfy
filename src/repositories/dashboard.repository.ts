@@ -5,6 +5,7 @@ export interface IDashboardRepository {
   getMetricsByEmpresa(empresaId: string): Promise<DashboardMetrics>;
   getUltimasVendasByEmpresa(empresaId: string): Promise<UltimaVenda[]>;
   getEmpresasByUsuario(usuarioId: string): Promise<string[]>;
+  getOverviewByEmpresa(empresaId: string): Promise<DashboardOverview | null>;
 }
 
 export interface DashboardOverview {
