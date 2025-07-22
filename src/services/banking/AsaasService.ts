@@ -17,33 +17,17 @@ export class AsaasService implements IBankingService {
   private baseUrl: string;
 
   constructor(config: BankingServiceConfig) {
-    console.log('=== ASAAS SERVICE CONSTRUCTOR ===');
-    console.log('Config received:', { 
-      apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'EMPTY',
-      environment: config.environment 
-    });
-    
     this.apiKey = config.apiKey;
     this.environment = config.environment;
     this.baseUrl = config.environment === 'sandbox' 
       ? 'https://api-sandbox.asaas.com/v3'
       : 'https://api-sandbox.asaas.com/v3';
-    
-    console.log('Base URL:', this.baseUrl);
-    console.log('================================');
   }
 
   async createAccount(data: BankingAccountData, userId?: string): Promise<BankingAccountResult> {
     try {
       const asaasData = this.mapToAsaasFormat(data);
       
-      console.log('=== ASAAS CREATE ACCOUNT ===');
-      console.log('URL:', `${this.baseUrl}/accounts`);
-      console.log('API Key available:', !!this.apiKey);
-      console.log('API Key length:', this.apiKey?.length || 0);
-      console.log('Request data:', asaasData);
-      console.log('User ID:', userId);
-      console.log('============================');
       
       const response = await fetch(`${this.baseUrl}/accounts`, {
         method: 'POST',

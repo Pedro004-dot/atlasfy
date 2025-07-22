@@ -34,13 +34,6 @@ export class BankingServiceFactory {
   static getDefaultService(): IBankingService {
     const provider = (process.env.DEFAULT_BANKING_PROVIDER as BankingProvider) || 'ASAAS';
     
-    // Debug logs
-    console.log('=== ASAAS CONFIG DEBUG ===');
-    console.log('ASAAS_API_KEY exists:', !!process.env.ASAAS_API_KEY);
-    console.log('ASAAS_API_KEY length:', process.env.ASAAS_API_KEY?.length || 0);
-    console.log('ASAAS_API_KEY first 20 chars:', process.env.ASAAS_API_KEY?.substring(0, 20) || 'NOT_FOUND');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('Provider:', provider);
     
     const apiKey = process.env.ASAAS_API_KEY;
     
@@ -55,11 +48,6 @@ export class BankingServiceFactory {
       webhookUrl: process.env.ASAAS_WEBHOOK_URL,
     };
 
-    console.log('✅ Final config:', { 
-      apiKey: config.apiKey ? `${config.apiKey.substring(0, 20)}...` : 'EMPTY', 
-      environment: config.environment 
-    });
-    console.log('=========================');
 
     return this.createService(provider, config);
   }

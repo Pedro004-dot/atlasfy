@@ -10,12 +10,10 @@ export class AuthService implements IAuthService {
   private jwtSecret = process.env.JWT_SECRET!;
 
   constructor() {
-    // Debug: Verificar se JWT_SECRET está carregado
-    console.log('=== AUTH SERVICE DEBUG ===');
-    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-    console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
-    console.log('JWT_SECRET first 10 chars:', process.env.JWT_SECRET?.substring(0, 10) || 'NOT_SET');
-    console.log('==========================');
+    // Verificar se JWT_SECRET está configurado
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
   }
 
   async register(data: CreateUserData): Promise<AuthResult> {

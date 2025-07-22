@@ -11,12 +11,6 @@ export class EmailService implements IEmailService {
     const smtpUser = process.env.SMTP_USER?.trim();
     const smtpPass = process.env.SMTP_PASS?.trim();
     
-    console.log('=== EMAIL SERVICE DEBUG ===');
-    console.log('SMTP_HOST:', smtpHost);
-    console.log('SMTP_PORT:', smtpPort);
-    console.log('SMTP_USER exists:', !!smtpUser);
-    console.log('SMTP_PASS exists:', !!smtpPass);
-    console.log('==========================');
     
     if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
       throw new Error('Configuração SMTP incompleta');

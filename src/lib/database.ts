@@ -9,11 +9,6 @@ class DatabaseService implements IDatabaseService {
   private supabase;
 
   constructor() {
-    console.log('=== DATABASE SERVICE DEBUG ===');
-    console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
-    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
-    console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
-    
     // Tentar usar service role key primeiro, se falhar usar anon key
     this.supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -21,9 +16,6 @@ class DatabaseService implements IDatabaseService {
         persistSession: false
       }
     });
-    
-    console.log('Supabase client created with service role key');
-    console.log('===============================');
   }
 
 
