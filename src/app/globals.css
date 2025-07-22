@@ -213,6 +213,57 @@
     letter-spacing: var(--tracking-normal) !important;
   }
   
+  /* Auth Layout with Logo */
+  .auth-layout {
+    @apply min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100;
+  }
+  
+  .auth-container {
+    @apply w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .auth-grid {
+    @apply grid lg:grid-cols-2 gap-8 lg:gap-16 items-center;
+  }
+  
+  .auth-logo-section {
+    @apply flex flex-col items-center justify-center p-8 lg:p-8;
+  }
+  
+  .auth-logo-section.desktop-only {
+    @apply hidden lg:flex;
+  }
+  
+  .auth-logo-section.mobile-only {
+    @apply flex lg:hidden;
+  }
+  
+  .auth-logo {
+    @apply w-full max-w-md mx-auto mb-6 lg:mb-8;
+  }
+  
+  .auth-logo img {
+    @apply w-full h-auto object-contain;
+  }
+  
+  .auth-form-section {
+    @apply flex items-center justify-center;
+  }
+  
+  .auth-card {
+    @apply w-full max-w-md mx-auto bg-white shadow-lg border border-gray-200 rounded-lg;
+  }
+  
+  @media (max-width: 1023px) {
+    .auth-layout {
+      @apply py-8;
+    }
+    
+    .auth-logo {
+      @apply max-w-xs;
+    }
+  }
+
   /* Estados de feedback */
   .atlas-success {
     @apply border-green-500 bg-green-50 text-green-700;

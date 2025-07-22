@@ -28,6 +28,7 @@ import { ProductsStep } from './wizard-steps/products-step';
 import { WhatsAppStep } from './wizard-steps/whatsapp-step';
 import { AdvancedConfigStep } from './wizard-steps/advanced-config-step';
 import { StepIndicator } from './wizard-steps/step-indicator';
+import { AgentTypeSelectionStep, AgentType } from './wizard-steps/agent-type-selection-step';
 
 interface CreateCompanyWizardProps {
   isOpen: boolean;
@@ -36,14 +37,21 @@ interface CreateCompanyWizardProps {
   canCreate?: boolean;
 }
 
-const STEPS = [
-  { id: 1, name: 'Informações Básicas', icon: Building2 },
-  { id: 2, name: 'Contato', icon: Building2 },
-  { id: 3, name: 'Agente de Vendas', icon: Building2 },
-  { id: 4, name: 'Objeções', icon: Building2 },
-  { id: 5, name: 'Produtos', icon: Building2 },
-  { id: 6, name: 'WhatsApp', icon: Building2 },
-  { id: 7, name: 'Configurações Avançadas', icon: Building2 },
+const SENTINELA_STEPS = [
+  { id: 1, name: 'Tipo de Agente', icon: Building2 },
+  { id: 2, name: 'Informações Básicas', icon: Building2 },
+  { id: 3, name: 'WhatsApp', icon: Building2 },
+];
+
+const VENDAS_STEPS = [
+  { id: 1, name: 'Tipo de Agente', icon: Building2 },
+  { id: 2, name: 'Informações Básicas', icon: Building2 },
+  { id: 3, name: 'Contato', icon: Building2 },
+  { id: 4, name: 'Agente de Vendas', icon: Building2 },
+  { id: 5, name: 'Objeções', icon: Building2 },
+  { id: 6, name: 'Produtos', icon: Building2 },
+  { id: 7, name: 'WhatsApp', icon: Building2 },
+  { id: 8, name: 'Configurações Avançadas', icon: Building2 },
 ];
 
 export function CreateCompanyWizard({ 
@@ -54,7 +62,7 @@ export function CreateCompanyWizard({
 }: CreateCompanyWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDevelopmentMode, setIsDevelopmentMode] = useState(true); // Toggle for demonstration
+  const [selectedAgentType, setSelectedAgentType] = useState<AgentType | undefined>();
   const { addToast } = useToast();
 
   // Form state for each step
@@ -69,8 +77,15 @@ export function CreateCompanyWizard({
   const [perguntasQualificacao, setPerguntasQualificacao] = useState<PerguntaQualificacaoFormData[]>([]);
   const [etapasFunil, setEtapasFunil] = useState<EtapaFunilFormData[]>([]);
 
+  // Get current steps based on agent type
+  const getCurrentSteps = () => {
+    if (!selectedAgentType) return SENTINELA_STEPS; // Default to Sentinela
+    return selectedAgentType === AgentType.SENTINELA ? SENTINELA_STEPS : VENDAS_STEPS;
+  };
+
   const reset = () => {
     setCurrentStep(1);
+    setSelectedAgentType(undefined);
     setBasicInfo({});
     setContactInfo({});
     setAgenteConfig({});
@@ -84,7 +99,8 @@ export function CreateCompanyWizard({
   };
 
   const handleNext = () => {
-    if (currentStep < STEPS.length) {
+    const currentSteps = getCurrentSteps();
+    if (currentStep < currentSteps.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -96,50 +112,68 @@ export function CreateCompanyWizard({
   };
 
   const goToStep = (step: number) => {
-    if (step >= 1 && step <= STEPS.length) {
+    const currentSteps = getCurrentSteps();
+    if (step >= 1 && step <= currentSteps.length) {
       setCurrentStep(step);
     }
   };
 
   const handleStepComplete = (stepData: any) => {
-    switch (currentStep) {
-      case 1:
-        setBasicInfo(stepData);
-        break;
-      case 2:
-        setContactInfo(stepData);
-        break;
-      case 3:
-        setAgenteConfig(stepData);
-        break;
-      case 4:
-        setObjecoes(stepData);
-        break;
-      case 5:
-        setProdutos(stepData);
-        break;
-      case 6:
-        setWhatsappConnection(stepData);
-        break;
-      case 7:
-        setGatilhosEscalacao(stepData.gatilhos_escalacao);
-        setFollowUps(stepData.follow_ups);
-        setPerguntasQualificacao(stepData.perguntas_qualificacao);
-        setEtapasFunil(stepData.etapas_funil);
-        break;
+    if (selectedAgentType === AgentType.SENTINELA) {
+      // Sentinela flow: 3 steps
+      switch (currentStep) {
+        case 1:
+          setSelectedAgentType(stepData);
+          break;
+        case 2:
+          setBasicInfo(stepData);
+          break;
+        case 3:
+          setWhatsappConnection(stepData);
+          break;
+      }
+    } else if (selectedAgentType === AgentType.VENDAS) {
+      // Vendas flow: 8 steps
+      switch (currentStep) {
+        case 1:
+          setSelectedAgentType(stepData);
+          break;
+        case 2:
+          setBasicInfo(stepData);
+          break;
+        case 3:
+          setContactInfo(stepData);
+          break;
+        case 4:
+          setAgenteConfig(stepData);
+          break;
+        case 5:
+          setObjecoes(stepData);
+          break;
+        case 6:
+          setProdutos(stepData);
+          break;
+        case 7:
+          setWhatsappConnection(stepData);
+          break;
+        case 8:
+          setGatilhosEscalacao(stepData.gatilhos_escalacao);
+          setFollowUps(stepData.follow_ups);
+          setPerguntasQualificacao(stepData.perguntas_qualificacao);
+          setEtapasFunil(stepData.etapas_funil);
+          break;
+      }
+    } else {
+      // First step: agent type selection
+      setSelectedAgentType(stepData);
     }
     
-    if (currentStep < STEPS.length) {
+    const currentSteps = getCurrentSteps();
+    if (currentStep < currentSteps.length) {
       handleNext();
     }
   };
 
-  const handleSkipToNext = () => {
-    // Save current data without validation in development mode
-    if (isDevelopmentMode) {
-      handleNext();
-    }
-  };
 
   const onSubmit = async () => {
     setIsSubmitting(true);
@@ -150,7 +184,9 @@ export function CreateCompanyWizard({
 
       const formData: CreateEmpresaData = {
         ...basicInfo,
-        ...contactInfo,
+        // Include contact info only for Vendas agent
+        ...(selectedAgentType === AgentType.VENDAS ? contactInfo : {}),
+        agent_type: selectedAgentType, // Add agent type to form data
         agente_config: Object.keys(agenteConfig).length > 0 ? agenteConfig as AgenteConfigFormData : undefined,
         objecoes: objecoes.length > 0 ? objecoes : undefined,
         produtos: produtos.length > 0 ? produtos : undefined,
@@ -161,10 +197,30 @@ export function CreateCompanyWizard({
         etapas_funil: etapasFunil.length > 0 ? etapasFunil : undefined,
       };
 
-      // Debug log para verificar formato do telefone
+      // Debug log para verificar dados da empresa
       console.log('=== CREATE COMPANY DEBUG ===');
-      console.log('Contact Info:', contactInfo);
-      console.log('Telefone final no formData:', formData.telefone);
+      console.log('Selected Agent Type:', selectedAgentType);
+      console.log('Form Data:', formData);
+      
+      // Validação de telefone apenas para Agente Vendas (que tem contact info)
+      if (selectedAgentType === AgentType.VENDAS && formData.telefone) {
+        // Adicionar prefixo 55 ao telefone se necessário
+        let telefoneFinal = formData.telefone;
+        if (telefoneFinal.length === 11 && !telefoneFinal.startsWith('55')) {
+          telefoneFinal = '55' + telefoneFinal;
+        }
+        // Garante que só envie se tiver 13 dígitos
+        if (telefoneFinal.length !== 13) {
+          addToast({
+            type: 'error',
+            message: 'O telefone deve conter DDD + 9 dígitos e o código do país (ex: 5531999999999)',
+          });
+          setIsSubmitting(false);
+          return;
+        }
+        formData.telefone = telefoneFinal;
+        console.log('Telefone validado para Agente Vendas:', formData.telefone);
+      }
       console.log('============================');
 
       const response = await fetch('/api/empresas/create-complete', {
@@ -206,78 +262,120 @@ export function CreateCompanyWizard({
   };
 
   const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <BasicInfoStep
-            data={basicInfo}
-            onNext={handleStepComplete}
-            onSkip={handleSkipToNext}
-            isDevelopmentMode={isDevelopmentMode}
-          />
-        );
-      case 2:
-        return (
-          <ContactInfoStep
-            data={contactInfo}
-            onNext={handleStepComplete}
-            onPrevious={handlePrevious}
-          />
-        );
-      case 3:
-        return (
-          <AgentConfigStep
-            data={agenteConfig}
-            onNext={handleStepComplete}
-            onPrevious={handlePrevious}
-          />
-        );
-      case 4:
-        return (
-          <ObjectionsStep
-            data={objecoes}
-            onNext={handleStepComplete}
-            onPrevious={handlePrevious}
-          />
-        );
-      case 5:
-        return (
-          <ProductsStep
-            data={produtos.map(p => ({ ...p, imagens: p.imagens ?? [] }))}
-            onNext={handleStepComplete}
-            onPrevious={handlePrevious}
-          />
-        );
-      case 6:
-        return (
-          <WhatsAppStep
-            data={{
-              ...whatsappConnection,
-              profileName: whatsappConnection.profileName ?? undefined
-            }}
-            onNext={handleStepComplete}
-            onPrevious={handlePrevious}
-            empresaId={undefined} // Durante criação, não temos ID real ainda
-            agentType={basicInfo.setor || "empresa"}
-          />
-        );
-      case 7:
-        return (
-          <AdvancedConfigStep
-            gatilhosData={gatilhosEscalacao}
-            followUpsData={followUps}
-            perguntasData={perguntasQualificacao}
-            etapasData={etapasFunil}
-            onNext={handleStepComplete}
-            onPrevious={handlePrevious}
-          />
-        );
-      default:
-        return null;
+    // First step is always agent type selection
+    if (currentStep === 1) {
+      return (
+        <AgentTypeSelectionStep
+          selectedType={selectedAgentType}
+          onNext={handleStepComplete}
+        />
+      );
     }
+
+    // Sentinela flow: 3 steps total
+    if (selectedAgentType === AgentType.SENTINELA) {
+      switch (currentStep) {
+        case 2:
+          return (
+            <BasicInfoStep
+              data={basicInfo}
+              onNext={handleStepComplete}
+            />
+          );
+        case 3:
+          return (
+            <WhatsAppStep
+              data={{
+                ...whatsappConnection,
+                profileName: whatsappConnection.profileName ?? undefined
+              }}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+              empresaId={undefined}
+              agentType="sentinela" // Always 'sentinela' for Sentinela agent
+            />
+          );
+        default:
+          return null;
+      }
+    }
+
+    // Vendas flow: 8 steps total
+    if (selectedAgentType === AgentType.VENDAS) {
+      switch (currentStep) {
+        case 2:
+          return (
+            <BasicInfoStep
+              data={basicInfo}
+              onNext={handleStepComplete}
+            />
+          );
+        case 3:
+          return (
+            <ContactInfoStep
+              data={contactInfo}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+            />
+          );
+        case 4:
+          return (
+            <AgentConfigStep
+              data={agenteConfig}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+            />
+          );
+        case 5:
+          return (
+            <ObjectionsStep
+              data={objecoes}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+            />
+          );
+        case 6:
+          return (
+            <ProductsStep
+              data={produtos.map(p => ({ ...p, imagens: p.imagens ?? [] }))}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+            />
+          );
+        case 7:
+          return (
+            <WhatsAppStep
+              data={{
+                ...whatsappConnection,
+                profileName: whatsappConnection.profileName ?? undefined
+              }}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+              empresaId={undefined}
+              agentType={basicInfo.setor || "empresa"}
+            />
+          );
+        case 8:
+          return (
+            <AdvancedConfigStep
+              gatilhosData={gatilhosEscalacao}
+              followUpsData={followUps}
+              perguntasData={perguntasQualificacao}
+              etapasData={etapasFunil}
+              onNext={handleStepComplete}
+              onPrevious={handlePrevious}
+            />
+          );
+        default:
+          return null;
+      }
+    }
+
+    return null;
   };
 
-  const isLastStep = currentStep === STEPS.length;
+  const currentSteps = getCurrentSteps();
+  const isLastStep = currentStep === currentSteps.length;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
@@ -288,35 +386,18 @@ export function CreateCompanyWizard({
             <div className="w-16 h-16 bg-primary/10 flex items-center justify-center mx-auto mb-4" style={{ borderRadius: 'var(--radius-lg)' }}>
               <Building2 className="h-8 w-8 text-primary" />
             </div>
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <h1 className="atlas-heading text-2xl font-bold text-foreground">
-                Criar Nova Empresa
-              </h1>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsDevelopmentMode(!isDevelopmentMode)}
-                className={`text-xs h-6 px-2 ${isDevelopmentMode ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-green-100 text-green-800 border-green-300'}`}
-              >
-                {isDevelopmentMode ? '🔧 DEV' : '🔒 PROD'}
-              </Button>
-            </div>
+            <h1 className="atlas-heading text-2xl font-bold text-foreground mb-2">
+              Criar Nova Empresa
+            </h1>
             <p className="atlas-muted text-sm">
-              Configure sua empresa e agente de vendas em {STEPS.length} etapas simples
-              {isDevelopmentMode && (
-                <span className="block text-yellow-600 text-xs mt-1">
-                  ⚡ Modo Desenvolvimento: Navegue livremente | Clique nos steps | Validação desabilitada
-                </span>
-              )}
+              Configure sua empresa e agente {selectedAgentType || 'sentinela'} em {currentSteps.length} etapas simples
             </p>
           </div>
 
           {/* Step Indicator */}
           <StepIndicator
-            steps={STEPS}
+            steps={currentSteps}
             currentStep={currentStep}
-            onStepClick={goToStep}
-            isDevelopmentMode={isDevelopmentMode}
           />
 
           {/* Current Step Content */}
@@ -349,37 +430,6 @@ export function CreateCompanyWizard({
             )}
           </div>
 
-          {/* Development Mode Navigation */}
-          {isDevelopmentMode && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Dev Mode:</span>
-              {currentStep < STEPS.length && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSkipToNext}
-                  disabled={isSubmitting}
-                  className="text-xs h-7 px-2"
-                >
-                  Pular Step
-                </Button>
-              )}
-              <div className="flex border rounded" style={{ borderRadius: 'var(--radius-sm)' }}>
-                {STEPS.map((step) => (
-                  <Button
-                    key={step.id}
-                    variant={currentStep === step.id ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => goToStep(step.id)}
-                    disabled={isSubmitting}
-                    className="h-7 w-8 p-0 text-xs rounded-none first:rounded-l last:rounded-r"
-                  >
-                    {step.id}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="flex gap-3">
             <Button

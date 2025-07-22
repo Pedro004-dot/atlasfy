@@ -29,9 +29,24 @@ export function ContactInfoStep({ data, onNext, onPrevious }: ContactInfoStepPro
 
   const { register, handleSubmit, formState: { errors } } = form;
 
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneDisplay(e.target.value);
-    e.target.value = formatted;
+    const field = 'telefone';
+    const value = e.target.value;
+    
+    if (field === 'telefone') {
+      // Remove tudo que não for número
+      const cleaned = String(value).replace(/\D/g, '');
+      // Só permite até 11 dígitos
+      if (cleaned.length > 11) return;
+      form.setValue(field, cleaned);
+      if (errors[field]) {
+        form.setError(field, { message: '' });
+      }
+      return;
+      
+    }
+    
   };
 
   const onSubmit = (formData: EmpresaContactFormData) => {
@@ -75,15 +90,19 @@ export function ContactInfoStep({ data, onNext, onPrevious }: ContactInfoStepPro
               id="telefone"
               {...register('telefone')}
               type="text"
-              maxLength={15}
+              maxLength={11}
+              minLength={11}
               onChange={handlePhoneChange}
               className="atlas-input"
-              placeholder="(31) 99999-9999"
+              placeholder="31999999999"
               style={{ borderRadius: 'var(--radius-sm)' }}
             />
             {errors.telefone && (
               <p className="text-destructive text-xs">{errors.telefone.message}</p>
             )}
+             <p className="text-sm text-muted-foreground mt-1">
+                Não use pontuação no telefone.
+              </p>
           </div>
 
           {/* Email */}

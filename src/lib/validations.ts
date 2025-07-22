@@ -132,7 +132,7 @@ export const empresaFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   telefone: z.string()
-    .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone deve estar no formato (XX) XXXXX-XXXX')
+    .regex(/^\d{11,13}$/, 'Telefone deve conter apenas números e ter 10 ou 11 dígitos')
     .optional()
     .or(z.literal('')),
   endereco: z.string().max(500, 'Endereço deve ter no máximo 500 caracteres').optional().or(z.literal('')),
@@ -140,7 +140,7 @@ export const empresaFormSchema = z.object({
   nome_atendente: z.string().max(100, 'Nome do atendente deve ter no máximo 100 caracteres').optional().or(z.literal('')),
   genero_atendente: z.enum(['masculino', 'feminino']).optional(),
   numeroSuporte: z.string()
-    .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Número de suporte deve estar no formato (XX) XXXXX-XXXX')
+    .regex(/^\d{10,11}$/, 'Número de suporte deve conter apenas números e ter 10 ou 11 dígitos')
     .optional()
     .or(z.literal('')),
   descricao: z.string().max(1000, 'Descrição deve ter no máximo 1000 caracteres').optional().or(z.literal('')),
@@ -191,7 +191,7 @@ export const userProfileSchema = z.object({
   }),
   
   telefone: z.string()
-    .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone deve estar no formato (XX) XXXXX-XXXX')
+    .regex(/^\d{11,13}$/, 'Telefone deve conter apenas números e ter 10 ou 11 dígitos')
     .optional()
     .or(z.literal('')),
   

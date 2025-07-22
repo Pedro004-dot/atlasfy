@@ -65,12 +65,15 @@ export function WhatsAppStep({ data, onNext, onPrevious, empresaId, agentType }:
           Conectar WhatsApp
         </h2>
         <p className="atlas-muted text-sm">
-          Conecte sua conta do WhatsApp para ativar os agentes de vendas
+          {agentType === 'sentinela' 
+            ? "Conecte sua conta do WhatsApp para monitorar conversas com o Agente Sentinela"
+            : "Conecte sua conta do WhatsApp para ativar os agentes de vendas"
+          }
         </p>
         {agentType && agentType !== "empresa" && (
           <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-            <span>🎯 Setor:</span>
-            <span className="font-medium">{agentType}</span>
+            <span>{agentType === 'sentinela' ? '🔍 Agente:' : '🎯 Setor:'}</span>
+            <span className="font-medium">{agentType === 'sentinela' ? 'Sentinela' : agentType}</span>
           </div>
         )}
       </div>
@@ -111,7 +114,10 @@ export function WhatsAppStep({ data, onNext, onPrevious, empresaId, agentType }:
 
           <div className="mt-4 p-3 bg-green-100 rounded">
             <p className="text-xs text-green-800">
-              ✓ Seu agente de vendas já pode receber e enviar mensagens via WhatsApp
+              {agentType === 'sentinela'
+                ? "✓ Seu Agente Sentinela já pode monitorar conversas do WhatsApp"
+                : "✓ Seu agente de vendas já pode receber e enviar mensagens via WhatsApp"
+              }
             </p>
           </div>
         </div>
@@ -140,10 +146,20 @@ export function WhatsAppStep({ data, onNext, onPrevious, empresaId, agentType }:
                 </h4>
                 <ul className="atlas-text text-sm text-blue-800 space-y-1">
                   <li>• Escaneie o QR Code com o WhatsApp do seu celular</li>
-                  <li>• A conexão permite que os agentes respondam automaticamente</li>
-                  <li>• Você pode gerenciar múltiplas conversas simultaneamente</li>
+                  {agentType === 'sentinela' ? (
+                    <>
+                      <li>• O Agente Sentinela monitora todas as conversas automaticamente</li>
+                      <li>• Gera insights e relatórios sobre seus clientes</li>
+                      <li>• Organiza conversas por status e prioridade</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>• A conexão permite que os agentes respondam automaticamente</li>
+                      <li>• Você pode gerenciar múltiplas conversas simultaneamente</li>
+                    </>
+                  )}
                   <li>• Os dados ficam seguros e criptografados</li>
-                  {agentType && agentType !== "empresa" && (
+                  {agentType && agentType !== "empresa" && agentType !== "sentinela" && (
                     <li>• ⚙️ Configurado para o setor: <strong>{agentType}</strong></li>
                   )}
                 </ul>

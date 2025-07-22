@@ -7,6 +7,20 @@ export interface IDashboardRepository {
   getEmpresasByUsuario(usuarioId: string): Promise<string[]>;
 }
 
+export interface DashboardOverview {
+  empresa_id: string;
+  conversion_rate_24h: number;
+  vendas_finalizadas_24h: number;
+  total_conversas_24h: number;
+  receita_hoje: number;
+  vendas_count_hoje: number;
+  ticket_medio_7d: number;
+  sla_percentage_24h: number;
+  nao_respondidos_30min: number;
+  sem_link_pagamento: number;
+  carrinho_abandonado_2h: number;
+}
+
 export class DashboardRepository implements IDashboardRepository {
   async getEmpresasByUsuario(usuarioId: string): Promise<string[]> {
     const supabase = databaseService.getClient();
@@ -120,6 +134,21 @@ export class DashboardRepository implements IDashboardRepository {
       created_at: venda.created_at,
       status_pagamento: venda.status_pagamento,
     })) || [];
+  }
+
+  async getOverviewByEmpresa(empresaId: string): Promise<DashboardOverview | null> {
+    const supabase = databaseService.getClient();
+    const { data, error } = await supabase
+      .from('vw_dashboard_whatsapp_sales_intelligence')
+      .select('*')
+      .eq('empresa_id', empresaId)
+      .limit(1)
+      .single();
+
+    if (error) {
+      throw new Error(`Database query error: ${error.message}`);
+    }
+    return data as DashboardOverview;
   }
 }
 

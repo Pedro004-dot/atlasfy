@@ -49,7 +49,7 @@ export class UserProfileService {
 
     try {
       // 5. Criar conta no sistema bancário
-      const bankingAccount = await bankingService.createAccount(bankingData);
+      const bankingAccount = await bankingService.createAccount(bankingData, userId);
 
       // 6. Completar perfil no banco de dados
       const updatedUser = await userRepository.completeProfile(userId, {

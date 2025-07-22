@@ -1,19 +1,30 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
 import { getDaysUntilExpiration, isTrialExpired, formatDate } from '@/lib/utils';
+import { useDashboardOverview } from '@/hooks/useDashboardOverview';
+import { useAuth } from '@/hooks/useAuth';
 import LogoutButton from './logout-button';
 
-// Força a página a ser dinâmica
-export const dynamic = 'force-dynamic';
+// TODO: Trocar por empresaId dinâmico do contexto/usuário logado
+const EMPRESA_ID = '3749ded8-bdd3-4055-a44c-fc64fd0f70df';
 
-export default async function HomePage() {
-  const user = await getCurrentUser();
+export default function HomePage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError } = useDashboardOverview(EMPRESA_ID, '24h');
+
+
+  if (authLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+  }
 
   if (!user) {
     redirect('/login');
+    return null;
   }
 
   const trialDaysLeft = user.data_fim_plano ? getDaysUntilExpiration(user.data_fim_plano) : 0;
@@ -150,35 +161,47 @@ export default async function HomePage() {
             </CardContent>
           </Card>
 
-          {/* Activity Card */}
+          {/* Dashboard Metrics Card */}
           <Card className="atlas-card">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
                 <div className="bg-atlas-100 rounded-lg p-2">
                   <svg className="w-6 h-6 text-atlas-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
                 <div>
-                  <CardTitle className="text-xl">Atividade</CardTitle>
-                  <CardDescription>Histórico de acessos</CardDescription>
+                  <CardTitle className="text-xl">Métricas Hoje</CardTitle>
+                  <CardDescription>Performance das vendas</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {user.ultimo_acesso && (
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm font-medium text-gray-500">Último acesso:</span>
-                  <p className="text-lg font-semibold text-gray-900">{formatDate(user.ultimo_acesso)}</p>
-                </div>
+              {dashboardLoading ? (
+                <div className="text-center text-muted-foreground py-4">Carregando métricas...</div>
+              ) : dashboardError ? (
+                <div className="text-center text-destructive py-4">{dashboardError}</div>
+              ) : dashboardData ? (
+                <>
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <span className="text-sm font-medium text-green-600">Taxa de Conversão:</span>
+                    <p className="text-lg font-semibold text-green-900">{dashboardData.conversion_rate_24h || 0}%</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <span className="text-sm font-medium text-blue-600">Receita Hoje:</span>
+                    <p className="text-lg font-semibold text-blue-900">R$ {Number(dashboardData.receita_hoje || 0).toLocaleString('pt-BR')}</p>
+                  </div>
+                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <span className="text-sm font-medium text-yellow-600">SLA de Resposta:</span>
+                    <p className="text-lg font-semibold text-yellow-900">{dashboardData.sla_percentage_24h || 0}%</p>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center text-muted-foreground py-4">Nenhum dado disponível</div>
               )}
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Membro desde:</span>
-                <p className="text-lg font-semibold text-gray-900">{formatDate(user.created_at)}</p>
-              </div>
               <div className="pt-2">
                 <Button variant="outline" className="w-full atlas-button-secondary">
-                  Ver Histórico Completo
+                  Ver Dashboard Completo
                 </Button>
               </div>
             </CardContent>
@@ -187,38 +210,47 @@ export default async function HomePage() {
 
         {/* Bottom Section */}
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Features Card */}
+          {/* Dashboard Alerts Card */}
           <Card className="atlas-card">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center space-x-3">
                 <div className="bg-atlas-100 rounded-lg p-2">
                   <svg className="w-6 h-6 text-atlas-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <span>Recursos Disponíveis</span>
+                <span>Alertas e Ações</span>
               </CardTitle>
-              <CardDescription>Funcionalidades que você pode usar</CardDescription>
+              <CardDescription>Itens que precisam da sua atenção</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                  <span className="font-medium text-green-900">Dashboard completo</span>
-                  <span className="text-green-600 font-bold">✓ Ativo</span>
+              {dashboardLoading ? (
+                <div className="text-center text-muted-foreground py-4">Carregando alertas...</div>
+              ) : dashboardError ? (
+                <div className="text-center text-destructive py-4">Erro ao carregar alertas</div>
+              ) : dashboardData ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                    <span className="font-medium text-red-900">🚨 Não Respondidos</span>
+                    <span className="text-red-600 font-bold">{dashboardData.nao_respondidos_30min || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <span className="font-medium text-yellow-900">💳 Sem Link de Pagamento</span>
+                    <span className="text-yellow-600 font-bold">{dashboardData.sem_link_pagamento || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <span className="font-medium text-blue-900">🛒 Carrinho Abandonado</span>
+                    <span className="text-blue-600 font-bold">{dashboardData.carrinho_abandonado_2h || 0}</span>
+                  </div>
+                  <div className="pt-2">
+                    <Button className="w-full atlas-button-primary">
+                      Ver Detalhes no Dashboard
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                  <span className="font-medium text-green-900">Gerenciamento de perfil</span>
-                  <span className="text-green-600 font-bold">✓ Ativo</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                  <span className="font-medium text-green-900">Suporte básico</span>
-                  <span className="text-green-600 font-bold">✓ Ativo</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <span className="font-medium text-gray-600">Recursos premium</span>
-                  <span className="text-gray-400 font-medium">Upgrade necessário</span>
-                </div>
-              </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-4">Nenhum alerta disponível</div>
+              )}
             </CardContent>
           </Card>
 

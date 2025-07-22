@@ -63,6 +63,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('=== CREATE EMPRESA API ===');
     console.log('Request body:', JSON.stringify(body, null, 2));
+    console.log('Agent type:', body.agent_type);
+    console.log('Telefone provided:', body.telefone);
     
     const validationResult = createEmpresaSchema.safeParse(body);
 
@@ -88,6 +90,14 @@ export async function POST(request: NextRequest) {
 
     try {
       // 1. Create empresa
+      // Handle telefone based on agent type - Sentinela doesn't require phone
+      const telefoneValue = formData.telefone || (formData.agent_type === 'sentinela' ? 'N/A' : null);
+      
+      console.log('=== EMPRESA CREATION ===');
+      console.log('Agent type:', formData.agent_type);
+      console.log('Original telefone:', formData.telefone);
+      console.log('Final telefone value:', telefoneValue);
+      
       const { data: empresa, error: empresaError } = await supabase
         .from('empresa')
         .insert([{
@@ -95,7 +105,7 @@ export async function POST(request: NextRequest) {
           cnpj: formData.cnpj || null,
           setor: formData.setor || null,
           descricao: formData.descricao || null,
-          telefone: formData.telefone || null,
+          telefone: telefoneValue,
           email: formData.email || null,
           website: formData.website || null,
           endereco: formData.endereco || null,

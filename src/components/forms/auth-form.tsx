@@ -26,32 +26,66 @@ export function AuthForm({
   success
 }: AuthFormProps) {
   return (
-    <div className="auth-container">
-      <Card className="auth-card">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-foreground atlas-heading">
-            {title}
-          </CardTitle>
-          {subtitle && (
-            <p className="text-muted-foreground mt-2 atlas-text">{subtitle}</p>
-          )}
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="error" className="mb-4">
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert variant="success" className="mb-4">
-              {success}
-            </Alert>
-          )}
-          <form onSubmit={onSubmit} className="space-y-4">
-            {children}
-          </form>
-        </CardContent>
-      </Card>
+    <div className="auth-layout">
+      <div className="auth-container">
+        {/* Mobile Logo Section */}
+        <div className="auth-logo-section mobile-only mb-8">
+          <div className="auth-logo max-w-xs">
+            <img 
+              src="/images/atlas-logo.png" 
+              alt="Atlas Logo" 
+              className="w-full h-auto"
+            />
+          </div>
+        </div>
+        
+        <div className="auth-grid">
+          {/* Desktop Logo Section */}
+          <div className="auth-logo-section desktop-only">
+            <div className="auth-logo">
+              <img 
+                src="/images/atlas-logo.png" 
+                alt="Atlas Logo" 
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-lg text-gray-600">
+                Revolucione suas vendas com inteligência artificial
+              </p>
+            </div>
+          </div>
+          
+          {/* Form Section */}
+          <div className="auth-form-section">
+            <Card className="auth-card">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold text-foreground atlas-heading">
+                  {title}
+                </CardTitle>
+                {subtitle && (
+                  <p className="text-muted-foreground mt-2 atlas-text">{subtitle}</p>
+                )}
+              </CardHeader>
+              <CardContent>
+                {error && (
+                  <Alert variant="error" className="mb-4">
+                    {error}
+                  </Alert>
+                )}
+                {success && (
+                  <Alert variant="success" className="mb-4">
+                    {success}
+                  </Alert>
+                )}
+                <form onSubmit={onSubmit} className="space-y-4">
+                  {children}
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

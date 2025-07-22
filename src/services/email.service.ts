@@ -82,6 +82,24 @@ export class EmailService implements IEmailService {
     }
   }
 
+  async sendBankingAccountCreatedEmail(email: string, nome: string): Promise<void> {
+    const mailOptions = {
+      from: process.env.SMTP_USER!,
+      to: email,
+      subject: 'Conta Bancária Criada - Verificação Necessária',
+      html: this.getBankingAccountCreatedEmailTemplate(nome),
+    };
+
+    try {
+      console.log('Enviando email de conta bancária criada para:', email);
+      await this.transporter.sendMail(mailOptions);
+      console.log('Email de conta bancária criada enviado com sucesso');
+    } catch (error) {
+      console.error('Erro ao enviar email de conta bancária criada:', error);
+      throw new Error(`Erro ao enviar email de conta bancária criada: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   private getVerificationEmailTemplate(nome: string, token: string, email: string): string {
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/confirmar-email?email=${encodeURIComponent(email)}&token=${token}`;
     
@@ -209,6 +227,82 @@ export class EmailService implements IEmailService {
           </div>
           <div class="footer">
             <p>© 2024 Atlas Auth. Todos os direitos reservados.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private getBankingAccountCreatedEmailTemplate(nome: string): string {
+    return `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Conta Bancária Criada - Verificação Necessária</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #10b981; color: white; padding: 20px; text-align: center; }
+          .content { padding: 20px; background: #f9fafb; }
+          .alert { background: #fef3c7; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #f59e0b; }
+          .steps { background: #e0f2fe; padding: 20px; border-radius: 4px; margin: 20px 0; }
+          .step { margin: 10px 0; padding: 10px; background: white; border-radius: 4px; }
+          .footer { text-align: center; margin-top: 20px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🏦 Atlas Auth</h1>
+            <p>Conta Bancária Criada com Sucesso</p>
+          </div>
+          <div class="content">
+            <h2>Olá, ${nome}!</h2>
+            <p>Sua conta bancária foi criada com sucesso no sistema Asaas! 🎉</p>
+            
+            <div class="alert">
+              <strong>⚠️ IMPORTANTE:</strong> Para ativar completamente sua conta bancária e começar a receber pagamentos, você deve concluir o processo de verificação no Asaas.
+            </div>
+
+            <div class="steps">
+              <h3>📋 Próximos Passos:</h3>
+              <div class="step">
+                <strong>1.</strong> Verifique sua caixa de entrada de email (incluindo spam/lixo eletrônico)
+              </div>
+              <div class="step">
+                <strong>2.</strong> Procure por emails da Asaas com instruções de verificação
+              </div>
+              <div class="step">
+                <strong>3.</strong> Siga as instruções para enviar os documentos necessários
+              </div>
+              <div class="step">
+                <strong>4.</strong> Aguarde a aprovação (normalmente 1-2 dias úteis)
+              </div>
+            </div>
+
+            <p><strong>Documentos que podem ser solicitados:</strong></p>
+            <ul>
+              <li>Documento de identidade (RG ou CNH)</li>
+              <li>Comprovante de endereço</li>
+              <li>Comprovante de renda (se aplicável)</li>
+              <li>Documentos da empresa (para CNPJ)</li>
+            </ul>
+
+            <p><strong>Sua conta bancária estará pronta para uso assim que a verificação for concluída!</strong></p>
+            
+            <p>Se você não receber o email do Asaas em até 30 minutos, verifique:</p>
+            <ul>
+              <li>Pasta de spam/lixo eletrônico</li>
+              <li>Se o email está correto no seu cadastro</li>
+              <li>Entre em contato com nosso suporte se necessário</li>
+            </ul>
+          </div>
+          <div class="footer">
+            <p>© 2024 Atlas Auth. Todos os direitos reservados.</p>
+            <p>Em caso de dúvidas, entre em contato conosco.</p>
           </div>
         </div>
       </body>

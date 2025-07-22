@@ -8,6 +8,8 @@ import {
   BankingServiceError
 } from './interfaces/IBankingService';
 import { BankingAccountData } from '@/types';
+import { userRepository } from '@/repositories/user.repository';
+import { emailService } from '@/services/email.service';
 
 export class AsaasService implements IBankingService {
   private apiKey: string;
@@ -31,7 +33,7 @@ export class AsaasService implements IBankingService {
     console.log('================================');
   }
 
-  async createAccount(data: BankingAccountData): Promise<BankingAccountResult> {
+  async createAccount(data: BankingAccountData, userId?: string): Promise<BankingAccountResult> {
     try {
       const asaasData = this.mapToAsaasFormat(data);
       
@@ -40,6 +42,7 @@ export class AsaasService implements IBankingService {
       console.log('API Key available:', !!this.apiKey);
       console.log('API Key length:', this.apiKey?.length || 0);
       console.log('Request data:', asaasData);
+      console.log('User ID:', userId);
       console.log('============================');
       
       const response = await fetch(`${this.baseUrl}/accounts`, {
@@ -63,6 +66,20 @@ export class AsaasService implements IBankingService {
       }
 
       const result = await response.json();
+      
+      // Salvar dados bancários do Asaas no banco de dados do usuário
+      if (userId && result) {
+        await this.saveAsaasBankingData(userId, result);
+        
+        // Enviar email de notificação sobre a criação da conta
+        try {
+          await emailService.sendBankingAccountCreatedEmail(data.email, data.name);
+        } catch (emailError) {
+          console.error('Erro ao enviar email de notificação:', emailError);
+          // Não queremos falhar a criação da conta se o email não for enviado
+        }
+      }
+      
       return this.mapFromAsaasFormat(result);
     } catch (error) {
       if (error instanceof BankingServiceError) {
@@ -373,5 +390,40 @@ export class AsaasService implements IBankingService {
   private isValidCep(cep: string): boolean {
     const cleaned = cep.replace(/\D/g, '');
     return cleaned.length === 8;
+  }
+
+  private async saveAsaasBankingData(userId: string, asaasResponse: any): Promise<void> {
+    try {
+      console.log('=== SALVANDO DADOS BANCÁRIOS DO ASAAS ===');
+      console.log('User ID:', userId);
+      console.log('Asaas Response:', asaasResponse);
+      
+      const bankingData = {
+        walletId: asaasResponse.walletId,
+        accountNumber: asaasResponse.accountNumber?.account,
+        agency: asaasResponse.accountNumber?.agency,
+        accountDigit: asaasResponse.accountNumber?.accountDigit,
+        apiKey: asaasResponse.apiKey,
+        subcontaId: asaasResponse.id,
+        status: 'ACTIVE', // Status padrão para conta criada
+        ambiente: this.environment,
+        createdAt: new Date().toISOString()
+      };
+
+      console.log('Banking data to save:', bankingData);
+      
+      await userRepository.saveAsaasBankingData(userId, bankingData);
+      
+      console.log('Dados bancários salvos com sucesso!');
+      console.log('==========================================');
+    } catch (error) {
+      console.error('Erro ao salvar dados bancários:', error);
+      throw new BankingServiceError(
+        `Erro ao salvar dados bancários: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        'SAVE_BANKING_DATA_ERROR',
+        500,
+        'ASAAS'
+      );
+    }
   }
 }

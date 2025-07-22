@@ -12,11 +12,9 @@ interface Step {
 interface StepIndicatorProps {
   steps: Step[];
   currentStep: number;
-  onStepClick?: (step: number) => void;
-  isDevelopmentMode?: boolean;
 }
 
-export function StepIndicator({ steps, currentStep, onStepClick, isDevelopmentMode = false }: StepIndicatorProps) {
+export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
   return (
     <div className="relative">
       {/* Progress Line */}
@@ -33,7 +31,6 @@ export function StepIndicator({ steps, currentStep, onStepClick, isDevelopmentMo
           const isCurrent = step.id === currentStep;
           const isUpcoming = step.id > currentStep;
 
-          const canClick = isDevelopmentMode && onStepClick;
 
           return (
             <div key={step.id} className="flex flex-col items-center group">
@@ -47,10 +44,8 @@ export function StepIndicator({ steps, currentStep, onStepClick, isDevelopmentMo
                     ? 'bg-background border-primary text-primary ring-4 ring-primary/20' 
                     : 'bg-background border-border text-muted-foreground'
                   }
-                  ${canClick ? 'cursor-pointer hover:scale-105 hover:border-primary hover:text-primary' : ''}
                 `}
                 style={{ borderRadius: 'var(--radius-lg)' }}
-                onClick={() => canClick && onStepClick(step.id)}
               >
                 {isCompleted ? (
                   <Check className="h-5 w-5" />
@@ -70,11 +65,8 @@ export function StepIndicator({ steps, currentStep, onStepClick, isDevelopmentMo
                       ? 'text-foreground' 
                       : 'text-muted-foreground'
                     }
-                    ${canClick ? 'hover:text-primary' : ''}
                   `}
                   style={{ letterSpacing: 'var(--tracking-wide)' }}
-                  onClick={() => canClick && onStepClick(step.id)}
-                  title={canClick ? 'Clique para navegar diretamente para este step' : undefined}
                 >
                   {step.name}
                 </p>

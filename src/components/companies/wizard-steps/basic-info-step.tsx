@@ -15,13 +15,11 @@ import { SETORES_OPCOES } from '@/types/empresa';
 interface BasicInfoStepProps {
   data: Partial<EmpresaBasicFormData>;
   onNext: (data: EmpresaBasicFormData) => void;
-  onSkip?: () => void;
-  isDevelopmentMode?: boolean;
 }
 
-export function BasicInfoStep({ data, onNext, onSkip, isDevelopmentMode = false }: BasicInfoStepProps) {
+export function BasicInfoStep({ data, onNext }: BasicInfoStepProps) {
   const form = useForm<EmpresaBasicFormData>({
-    resolver: isDevelopmentMode ? undefined : zodResolver(empresaBasicSchema),
+    resolver: zodResolver(empresaBasicSchema),
     defaultValues: {
       nome: data.nome || '',
       cnpj: data.cnpj || '',
@@ -46,11 +44,6 @@ export function BasicInfoStep({ data, onNext, onSkip, isDevelopmentMode = false 
     onNext(formData);
   };
 
-  const handleSkip = () => {
-    if (isDevelopmentMode && onSkip) {
-      onSkip();
-    }
-  };
 
   const selectedSetor = watch('setor');
 
@@ -175,21 +168,7 @@ export function BasicInfoStep({ data, onNext, onSkip, isDevelopmentMode = false 
       </div>
 
       {/* Action Button */}
-      <div className="flex justify-between pt-4">
-        {isDevelopmentMode && onSkip ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleSkip}
-            className="atlas-button-secondary"
-            style={{ borderRadius: 'var(--radius)' }}
-          >
-            Pular Step (Dev)
-          </Button>
-        ) : (
-          <div></div>
-        )}
-        
+      <div className="flex justify-end pt-4">
         <Button
           type="submit"
           className="atlas-button-primary"

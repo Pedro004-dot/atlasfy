@@ -21,11 +21,9 @@ export const empresaContactSchema = z.object({
   telefone: z.string()
     .refine((value) => {
       if (!value) return true; // Opcional
-      // Aceita formato de exibição (XX) XXXXX-XXXX ou formato do banco 55DDNÚMERO
-      const displayFormat = /^\(\d{2}\) \d{4,5}-\d{4}$/;
-      const databaseFormat = /^55\d{10,11}$/;
-      return displayFormat.test(value) || databaseFormat.test(value);
-    }, 'Telefone deve estar no formato (XX) XXXXX-XXXX')
+      // Só aceita 11 dígitos numéricos
+      return /^\d{13}$/.test(value);
+    }, 'Digite o telefone com DDD e número, apenas números, ex: 31996997292')
     .optional(),
   email: z.string()
     .email('Email inválido')
@@ -147,6 +145,9 @@ export const whatsappConnectionSchema = z.object({
 
 // Complete Company Creation Schema
 export const createEmpresaSchema = z.object({
+  // Agent Type Selection
+  agent_type: z.enum(['sentinela', 'vendas']).optional(),
+  
   // Step 1
   ...empresaBasicSchema.shape,
   

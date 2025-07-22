@@ -108,6 +108,9 @@ export interface Produto {
 }
 
 export interface CreateEmpresaData {
+  // Agent Type Selection
+  agent_type?: 'sentinela' | 'vendas';
+  
   // Step 1: Basic Information
   nome?: string;
   cnpj?: string;
@@ -145,13 +148,11 @@ export interface CreateEmpresaData {
 }
 
 export const SETORES_OPCOES = [
- 'InfoProdutos',
- 'Encapsulados',
  'Joialheiria',
  'Produtos Eletronicos'
 ] as const;
 
-export const GENEROS_OPCOES = ['Masculino', 'Feminino', 'Neutro'] as const;
+export const GENEROS_OPCOES = ['Masculino', 'Feminino'] as const;
 
 export const TONS_VOZ_OPCOES = ['Profissional', 'Amigável', 'Persuasivo', 'Casual', 'Consultivo'] as const;
 

@@ -1,7 +1,7 @@
 import { BankingAccountData } from '@/types';
 
 export interface IBankingService {
-  createAccount(data: BankingAccountData): Promise<BankingAccountResult>;
+  createAccount(data: BankingAccountData, userId?: string): Promise<BankingAccountResult>;
   getAccount(accountId: string): Promise<BankingAccountResult>;
   updateAccount(accountId: string, data: Partial<BankingAccountData>): Promise<BankingAccountResult>;
   deleteAccount(accountId: string): Promise<void>;

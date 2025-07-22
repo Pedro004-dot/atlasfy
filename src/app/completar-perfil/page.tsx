@@ -143,12 +143,27 @@ export default function CompletarPerfilPage() {
   };
 
   const handleChange = (field: keyof UserProfileFormData, value: string | number) => {
+    if (field === 'telefone') {
+      // Remove tudo que não for número
+      const cleaned = String(value).replace(/\D/g, '');
+      // Só permite até 11 dígitos
+      if (cleaned.length > 11) return;
+      setFormData(prev => ({
+        ...prev,
+        [field]: cleaned,
+      }));
+      if (errors[field]) {
+        setErrors(prev => ({
+          ...prev,
+          [field]: '',
+        }));
+      }
+      return;
+    }
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
-    
-    // Limpar erro do campo quando o usuário começar a digitar
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -186,6 +201,16 @@ export default function CompletarPerfilPage() {
     setIsLoading(true);
     setErrors({});
 
+    // Validação do telefone
+    if ((formData.telefone || '').length !== 11) {
+      setErrors(prev => ({
+        ...prev,
+        telefone: 'O telefone deve conter exatamente 11 dígitos (DDD + 9 + número).',
+      }));
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('auth-token');
       if (!token) {
@@ -206,7 +231,11 @@ export default function CompletarPerfilPage() {
       }
 
       console.log('=== ENVIANDO DADOS PARA API ===');
-      console.log('formData sendo enviado:', JSON.stringify(formData, null, 2));
+      const formDataToSend = {
+        ...formData,
+        telefone:  formData.telefone,
+      };
+      console.log('formData sendo enviado:', JSON.stringify(formDataToSend, null, 2));
       console.log('===============================');
 
       const response = await fetch('/api/auth/completar-perfil', {
@@ -216,7 +245,7 @@ export default function CompletarPerfilPage() {
           'Authorization': `Bearer ${token}`,
           'x-user-id': userId,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formDataToSend),
       });
 
       const data = await response.json();
@@ -275,11 +304,11 @@ export default function CompletarPerfilPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-          <Alert className="mb-6">
-            {/* <AlertDescription>
+          <Alert className="mb-6">       
               <strong>Olá, {user.nome}!</strong> Seus dados serão usados para criar uma conta bancária
               no sistema de pagamentos. Todas as informações são criptografadas e seguras.
-            </AlertDescription> */}
+              <br></br> 
+              <strong>{user.nome}!</strong> Preciso que assim que enviar confira a caixa de email para confirmar o cadastro no banco.          
           </Alert>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -327,11 +356,15 @@ export default function CompletarPerfilPage() {
                   id="telefone"
                   value={formData.telefone}
                   onChange={(e) => handleChange('telefone', e.target.value)}
-                  placeholder="(11) 99999-9999"
+                  placeholder="31999999999"
+                  maxLength={11}
                 />
                 {errors.telefone && (
                   <p className="text-sm text-red-500 mt-1">{errors.telefone}</p>
                 )}
+                <p className="text-sm text-muted-foreground mt-1">
+                Não use pontuação no telefone.
+              </p>
               </div>
 
               <div>

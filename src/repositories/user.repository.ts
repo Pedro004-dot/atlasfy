@@ -217,6 +217,81 @@ export class UserRepository implements IUserRepository {
       throw new Error(`Erro ao definir conta bancária: ${error.message}`);
     }
   }
+
+  async saveAsaasBankingData(id: string, asaasData: {
+    walletId?: string;
+    accountNumber?: string;
+    agency?: string;
+    accountDigit?: string;
+    apiKey?: string;
+    subcontaId?: string;
+    status?: string;
+    ambiente?: string;
+    createdAt?: string;
+  }): Promise<void> {
+    const supabase = databaseService.getClient();
+    
+    const updateData: any = {
+      updated_at: new Date().toISOString()
+    };
+
+    if (asaasData.walletId) updateData.asaas_wallet_id = asaasData.walletId;
+    if (asaasData.accountNumber) updateData.asaas_account_number = asaasData.accountNumber;
+    if (asaasData.agency) updateData.asaas_account_agency = asaasData.agency;
+    if (asaasData.accountDigit) updateData.asaas_account_digit = asaasData.accountDigit;
+    if (asaasData.apiKey) updateData.asaas_api_key = asaasData.apiKey;
+    if (asaasData.subcontaId) updateData.asaas_subconta_id = asaasData.subcontaId;
+    if (asaasData.status) updateData.asaas_status = asaasData.status;
+    if (asaasData.ambiente) updateData.asaas_ambiente = asaasData.ambiente;
+    if (asaasData.createdAt) updateData.asaas_created_at = asaasData.createdAt;
+
+    const { error } = await supabase
+      .from('usuario')
+      .update(updateData)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(`Erro ao salvar dados bancários do Asaas: ${error.message}`);
+    }
+  }
+
+  async getAsaasBankingData(id: string): Promise<{
+    walletId?: string;
+    accountNumber?: string;
+    agency?: string;
+    accountDigit?: string;
+    apiKey?: string;
+    subcontaId?: string;
+    status?: string;
+    ambiente?: string;
+    createdAt?: string;
+  } | null> {
+    const supabase = databaseService.getClient();
+    
+    const { data: user, error } = await supabase
+      .from('usuario')
+      .select('asaas_wallet_id, asaas_account_number, asaas_account_agency, asaas_account_digit, asaas_api_key, asaas_subconta_id, asaas_status, asaas_ambiente, asaas_created_at')
+      .eq('id', id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      throw new Error(`Erro ao buscar dados bancários do Asaas: ${error.message}`);
+    }
+
+    if (!user) return null;
+
+    return {
+      walletId: user.asaas_wallet_id,
+      accountNumber: user.asaas_account_number,
+      agency: user.asaas_account_agency,
+      accountDigit: user.asaas_account_digit,
+      apiKey: user.asaas_api_key,
+      subcontaId: user.asaas_subconta_id,
+      status: user.asaas_status,
+      ambiente: user.asaas_ambiente,
+      createdAt: user.asaas_created_at
+    };
+  }
 }
 
 export const userRepository = new UserRepository();

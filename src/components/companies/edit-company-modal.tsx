@@ -26,7 +26,7 @@ const empresaEditSchema = z.object({
     .max(255, 'Endereço deve ter no máximo 255 caracteres')
     .optional(),
   telefone: z.string()
-    .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone deve estar no formato (XX) XXXXX-XXXX')
+    .regex(/^\d{10,11}$/, 'Telefone deve conter apenas números e ter 10 ou 11 dígitos')
     .optional(),
   email: z.string()
     .email('Email inválido')

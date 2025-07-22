@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MetricsCards } from '@/components/dashboard/metrics-cards';
 import { RecentSales } from '@/components/dashboard/recent-sales';
 import { DashboardData } from '@/types/dashboard';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardPageState {
   data: DashboardData | null;
@@ -18,37 +19,40 @@ export default function DashboardPage() {
     error: null,
   });
 
+
   const fetchDashboardData = async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
       const token = localStorage.getItem('auth-token');
       if (!token) {
         throw new Error('Token não encontrado');
       }
-      
-      const response = await fetch('/api/dashboard', {
+      const empresaId = '3749ded8-bdd3-4055-a44c-fc64fd0f70df'; // Troque por dinâmico se necessário
+      const response = await fetch(`/api/dashboard/overview?empresa_id=${empresaId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
-      const result = await response.json();
+      if (!response.ok) {
+        throw new Error('Erro ao buscar dados do dashboard');
+      }
+      const data = await response.json();
 
-      if (!result.success) {
-        throw new Error(result.message || 'Erro ao carregar dados');
+      // Trate o shape do dado conforme esperado
+      if (!data.success) {
+        throw new Error(data.message || 'Erro ao carregar dados');
       }
 
       setState(prev => ({
         ...prev,
-        data: result.data,
+        data: data.data,
         isLoading: false,
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao buscar dados do dashboard:', error);
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
+        error: error.message || 'Erro desconhecido',
         isLoading: false,
       }));
     }

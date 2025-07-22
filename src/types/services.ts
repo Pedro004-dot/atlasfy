@@ -22,6 +22,7 @@ export interface IEmailService {
   sendVerificationEmail(email: string, token: string, nome: string): Promise<void>;
   sendPasswordResetEmail(email: string, token: string, nome: string): Promise<void>;
   sendWelcomeEmail(email: string, nome: string): Promise<void>;
+  sendBankingAccountCreatedEmail(email: string, nome: string): Promise<void>;
 }
 
 export interface IAuthService {
