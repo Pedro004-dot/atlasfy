@@ -35,11 +35,13 @@ export function useDashboardOverview(empresaId: string, period?: string): UseDas
     try {
       const params = new URLSearchParams({ empresa_id: empresaId });
       if (period) params.append('period', period);
+      
       const token = localStorage.getItem('auth-token');
       if (!token) {
         throw new Error('Token não encontrado');
       }
-      const res = await fetch(`/api/dashboard/overview?empresa_id=${empresaId}`, {
+      
+      const res = await fetch(`/api/dashboard/overview?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,6 +51,7 @@ export function useDashboardOverview(empresaId: string, period?: string): UseDas
         setError(json.message || 'Erro ao buscar dados do dashboard');
         setData(null);
       } else {
+        console.log('[DashboardOverview] json.data:', json.data);
         setData(json.data);
       }
     } catch (err: any) {

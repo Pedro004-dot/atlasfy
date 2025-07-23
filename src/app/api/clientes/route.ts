@@ -25,22 +25,37 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Buscar empresas do usuário
-    const empresas = await dashboardService.getEmpresasByUsuario(user.id);
-    
-    if (empresas.length === 0) {
-      return NextResponse.json(
-        { success: false, message: 'Usuário não possui empresas ativas' },
-        { status: 403 }
-      );
-    }
-
-    // Para este exemplo, vamos usar a primeira empresa
-    // Em uma implementação real, você pode permitir que o usuário escolha a empresa
-    const empresaId = empresas[0];
-
     // Extrair parâmetros de query
     const { searchParams } = new URL(request.url);
+    const empresaIdFromQuery = searchParams.get('empresa_id');
+
+    let empresaId: string;
+
+    if (empresaIdFromQuery) {
+      // Usar a empresa fornecida na query
+      empresaId = empresaIdFromQuery;
+      
+      // Verificar se o usuário tem acesso a esta empresa
+      const empresas = await dashboardService.getEmpresasByUsuario(user.id);
+      if (!empresas.includes(empresaId)) {
+        return NextResponse.json(
+          { success: false, message: 'Usuário não possui acesso a esta empresa' },
+          { status: 403 }
+        );
+      }
+    } else {
+      // Buscar empresas do usuário e usar a primeira
+      const empresas = await dashboardService.getEmpresasByUsuario(user.id);
+      
+      if (empresas.length === 0) {
+        return NextResponse.json(
+          { success: false, message: 'Usuário não possui empresas ativas' },
+          { status: 403 }
+        );
+      }
+      
+      empresaId = empresas[0];
+    }
     const nome = searchParams.get('nome') || undefined;
     const orderBy = searchParams.get('orderBy') || 'recent';
     const page = parseInt(searchParams.get('page') || '1');

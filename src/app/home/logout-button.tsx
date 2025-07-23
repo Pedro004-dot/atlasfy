@@ -1,26 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 export default function LogoutButton() {
-  const router = useRouter();
+  const { logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     setIsLoading(true);
     
     try {
+      // Chama API de logout para limpar cookies do servidor
       await fetch('/api/auth/logout', {
         method: 'POST',
       });
-      
-      router.push('/login');
     } catch (error) {
-      console.error('Erro no logout:', error);
+      console.error('Erro ao chamar API de logout:', error);
     }
     
+    // Sempre remove localStorage e redireciona, mesmo se API falhar
+    logout();
     setIsLoading(false);
   };
 

@@ -51,6 +51,7 @@ export function ProtectedPage({
           console.log('Token expirado');
           localStorage.removeItem('token');
           localStorage.removeItem('auth-token');
+          localStorage.removeItem('empresa-selecionada');
           setIsAuthenticated(false);
           setIsChecking(false);
           router.push(redirectTo);
@@ -64,6 +65,7 @@ export function ProtectedPage({
         console.error('Erro ao decodificar token:', tokenError);
         localStorage.removeItem('token');
         localStorage.removeItem('auth-token');
+        localStorage.removeItem('empresa-selecionada');
         setIsAuthenticated(false);
         setIsChecking(false);
         router.push(redirectTo);

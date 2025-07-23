@@ -7,12 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ClienteWithEmpresa, ClienteFilters, ClienteListResponse } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
+import { useEmpresa } from '@/contexts/EmpresaContext';
 
 interface ClienteListProps {
 }
 
 export function ClienteList({}: ClienteListProps) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { empresaSelecionada } = useEmpresa();
   const [clientes, setClientes] = useState<ClienteWithEmpresa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +46,7 @@ export function ClienteList({}: ClienteListProps) {
 
       // Build query params
       const queryParams = new URLSearchParams();
+      if (empresaSelecionada) queryParams.append('empresa_id', empresaSelecionada);
       if (currentFilters.nome) queryParams.append('nome', currentFilters.nome);
       if (currentFilters.orderBy) queryParams.append('orderBy', currentFilters.orderBy);
       if (currentFilters.page) queryParams.append('page', currentFilters.page.toString());
@@ -88,10 +91,10 @@ export function ClienteList({}: ClienteListProps) {
 
   // Load initial data
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
+    if (isAuthenticated && !authLoading && empresaSelecionada) {
       loadClientes(filters);
     }
-  }, [isAuthenticated, authLoading]);
+  }, [isAuthenticated, authLoading, empresaSelecionada]);
 
   // Handle search
   const handleSearch = () => {

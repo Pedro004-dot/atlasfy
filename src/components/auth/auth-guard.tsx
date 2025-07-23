@@ -35,15 +35,18 @@ export function AuthGuard({ children }: AuthGuardProps) {
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem('auth-token');
+            localStorage.removeItem('empresa-selecionada');
             router.replace('/login');
           }
         } else {
           localStorage.removeItem('auth-token');
+          localStorage.removeItem('empresa-selecionada');
           router.replace('/login');
         }
       } catch (error) {
         console.error('Erro na verificação de autenticação:', error);
         localStorage.removeItem('auth-token');
+        localStorage.removeItem('empresa-selecionada');
         router.replace('/login');
       } finally {
         setIsLoading(false);

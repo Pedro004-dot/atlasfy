@@ -1,15 +1,15 @@
 import { DashboardRepository, IDashboardRepository, DashboardOverview } from '@/repositories/dashboard.repository';
 
 export interface IDashboardService {
-  getOverview(empresaId: string): Promise<DashboardOverview | null>;
+  getOverview(empresaId: string, period?: string): Promise<DashboardOverview | null>;
   getEmpresasByUsuario(usuarioId: string): Promise<string[]>;
 }
 
 export class DashboardService implements IDashboardService {
   constructor(private dashboardRepository: IDashboardRepository) {}
 
-  async getOverview(empresaId: string): Promise<DashboardOverview | null> {
-    return await this.dashboardRepository.getOverviewByEmpresa(empresaId);
+  async getOverview(empresaId: string, period?: string): Promise<DashboardOverview | null> {
+    return await this.dashboardRepository.getOverviewByEmpresa(empresaId, period);
   }
 
   async getEmpresasByUsuario(usuarioId: string): Promise<string[]> {

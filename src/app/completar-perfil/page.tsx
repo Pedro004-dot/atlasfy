@@ -62,6 +62,7 @@ export default function CompletarPerfilPage() {
         console.error('Erro ao decodificar token:', tokenError);
         localStorage.removeItem('token');
         localStorage.removeItem('auth-token');
+        localStorage.removeItem('empresa-selecionada');
         router.push('/login');
         return;
       }
@@ -81,6 +82,7 @@ export default function CompletarPerfilPage() {
           console.log('Token inválido ou expirado, redirecionando para login');
           localStorage.removeItem('token');
           localStorage.removeItem('auth-token');
+          localStorage.removeItem('empresa-selecionada');
           router.push('/login');
           return;
         }
@@ -226,6 +228,7 @@ export default function CompletarPerfilPage() {
         console.error('Erro ao decodificar token no submit:', tokenError);
         localStorage.removeItem('token');
         localStorage.removeItem('auth-token');
+        localStorage.removeItem('empresa-selecionada');
         router.push('/login');
         return;
       }

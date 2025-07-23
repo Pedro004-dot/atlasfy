@@ -18,7 +18,9 @@ export function useAuth(): UseAuthReturn {
   const router = useRouter();
 
   const logout = () => {
+    // Remove todos os dados relacionados ao usuário
     localStorage.removeItem('auth-token');
+    localStorage.removeItem('empresa-selecionada');
     setUser(null);
     router.push('/login');
   };

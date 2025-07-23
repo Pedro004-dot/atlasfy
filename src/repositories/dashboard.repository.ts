@@ -5,7 +5,7 @@ export interface IDashboardRepository {
   getMetricsByEmpresa(empresaId: string): Promise<DashboardMetrics>;
   getUltimasVendasByEmpresa(empresaId: string): Promise<UltimaVenda[]>;
   getEmpresasByUsuario(usuarioId: string): Promise<string[]>;
-  getOverviewByEmpresa(empresaId: string): Promise<DashboardOverview | null>;
+  getOverviewByEmpresa(empresaId: string, period?: string): Promise<DashboardOverview | null>;
 }
 
 export interface DashboardOverview {
@@ -137,19 +137,21 @@ export class DashboardRepository implements IDashboardRepository {
     })) || [];
   }
 
-  async getOverviewByEmpresa(empresaId: string): Promise<DashboardOverview | null> {
+  async getOverviewByEmpresa(empresaId: string, period: string = '24h'): Promise<DashboardOverview | null> {
     const supabase = databaseService.getClient();
     const { data, error } = await supabase
       .from('vw_dashboard_whatsapp_sales_intelligence')
       .select('*')
       .eq('empresa_id', empresaId)
-      .limit(1)
-      .single();
+      .limit(1);
 
     if (error) {
+      console.error('Dashboard query error:', error);
       throw new Error(`Database query error: ${error.message}`);
     }
-    return data as DashboardOverview;
+    
+    // Retorna o primeiro item ou null se não encontrar dados
+    return data && data.length > 0 ? data[0] as DashboardOverview : null;
   }
 }
 

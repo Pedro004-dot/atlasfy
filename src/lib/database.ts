@@ -5,6 +5,10 @@ const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 
+console.log('SUPABASE_URL:', supabaseUrl);
+console.log('SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey);
+console.log('SUPABASE_ANON_KEY:', supabaseAnonKey);
+
 class DatabaseService implements IDatabaseService {
   private supabase;
 

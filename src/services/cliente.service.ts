@@ -13,6 +13,33 @@ export interface IClienteService {
 export class ClienteService implements IClienteService {
   constructor(private clienteRepository: IClienteRepository) {}
 
+  async getAllClientesByEmpresa(empresaId: string, filters: ClienteFilters = {}): Promise<ClienteListResponse> {
+    try {
+      // Validate empresaId
+      if (!empresaId) {
+        throw new Error('ID da empresa é obrigatório');
+      }
+
+
+      const result = await this.clienteRepository.getAllClientesByEmpres(empresaId);
+      
+      // Format dates for display
+      result.clientes = result.clientes.map(cliente => ({
+        ...cliente,
+        cliente_empresa: {
+          ...cliente.cliente_empresa,
+          primeiro_contato: this.formatDate(cliente.cliente_empresa.primeiro_contato),
+          ultimo_contato: cliente.cliente_empresa.ultimo_contato 
+            ? this.formatDate(cliente.cliente_empresa.ultimo_contato)
+            : undefined,
+        }
+      }));
+
+      return result;
+    } catch (error) {
+      throw new Error(`Erro ao buscar clientes: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    }
+  }
   async getClientesByEmpresa(empresaId: string, filters: ClienteFilters = {}): Promise<ClienteListResponse> {
     try {
       // Validate empresaId

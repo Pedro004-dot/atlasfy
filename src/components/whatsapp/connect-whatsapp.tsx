@@ -489,8 +489,8 @@ export function ConnectWhatsApp({
           </h4>
           <ol className="text-xs text-blue-800 space-y-1">
             <li>1. Abra o WhatsApp no seu celular</li>
-            <li>2. Toque em "Menu" ou "⋮" no canto superior direito</li>
-            <li>3. Selecione "WhatsApp Web"</li>
+            <li>2. Toque em &quot;Menu&quot; ou &quot;⋮&quot; no canto superior direito</li>
+            <li>3. Selecione &quot;WhatsApp Web&quot;</li>
             <li>4. Escaneie o QR Code acima</li>
           </ol>
         </div>

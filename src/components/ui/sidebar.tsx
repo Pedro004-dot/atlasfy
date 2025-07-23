@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavItem {
   href: string;
@@ -51,16 +52,20 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     try {
-      // Remover token do localStorage
-      localStorage.removeItem('auth-token');
-      // Redirecionar para login
-      window.location.href = '/login';
+      // Chama API de logout para limpar cookies do servidor
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
+      console.error('Erro ao chamar API de logout:', error);
     }
+    
+    // Sempre remove localStorage e redireciona, mesmo se API falhar
+    logout();
   };
 
   return (
