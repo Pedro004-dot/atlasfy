@@ -156,6 +156,7 @@ export interface Empresa {
   email?: string;
   website?: string;
   setor?: string;
+  agent_type?: 'sentinela' | 'vendas';
   ativo: boolean;
   created_at: string;
   updated_at: string;
@@ -278,6 +279,7 @@ export interface EvolutionWebhookConfig {
 export interface EvolutionCreateInstanceRequest {
   instanceName: string;
   qrcode: boolean;
+  groupsIgnore: boolean;
   integration?: string;
   webhook?: EvolutionWebhookConfig;
 }

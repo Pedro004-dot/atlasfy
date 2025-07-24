@@ -16,6 +16,21 @@ export const empresaBasicSchema = z.object({
     .optional(),
 });
 
+// Step 1: Basic Information Schema for Sentinela (requires phone)
+export const empresaBasicSentinelaSchema = z.object({
+  nome: z.string()
+    .min(2, 'Nome deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome deve ter no máximo 100 caracteres'),
+  telefone: z.string()
+    .regex(/^55\d{11}$/, 'Telefone deve ter 13 dígitos no formato 5531996997292')
+    .refine((value) => value.startsWith('55'), 'Telefone deve começar com código do país 55')
+    .refine((value) => value.length === 13, 'Telefone deve ter exatamente 13 dígitos'),
+  setor: z.enum(SETORES_OPCOES).optional(),
+  descricao: z.string()
+    .max(500, 'Descrição deve ter no máximo 500 caracteres')
+    .optional(),
+});
+
 // Step 2: Contact Information Schema
 export const empresaContactSchema = z.object({
   telefone: z.string()
@@ -143,6 +158,15 @@ export const whatsappConnectionSchema = z.object({
   instanceName: z.string().optional(),
 });
 
+// Blocked Numbers Schema
+export const blockedNumbersSchema = z.object({
+  blocked_numbers: z.array(z.string()
+    .regex(/^55\d{11}$/, 'Número deve ter 13 dígitos no formato 5531996997292 (código país 55 + DDD + número com 9)')
+    .refine((value) => value.startsWith('55'), 'Número deve começar com código do país 55')
+    .refine((value) => value.length === 13, 'Número deve ter exatamente 13 dígitos')
+  ).default([])
+});
+
 // Complete Company Creation Schema
 export const createEmpresaSchema = z.object({
   // Agent Type Selection
@@ -170,7 +194,10 @@ export const createEmpresaSchema = z.object({
   // Step 6 - WhatsApp Connection (optional)
   whatsapp_connection: whatsappConnectionSchema.optional(),
   
-  // Step 7 - Advanced Configurations (optional)
+  // Step 7 - Blocked Numbers (optional)  
+  blocked_numbers: z.array(z.string()).optional(),
+  
+  // Step 8 - Advanced Configurations (optional)
   gatilhos_escalacao: gatilhoEscalacaoSchema.optional(),
   follow_ups: z.array(followUpSchema).optional(),
   perguntas_qualificacao: z.array(perguntaQualificacaoSchema).optional(),
@@ -179,11 +206,13 @@ export const createEmpresaSchema = z.object({
 
 export type CreateEmpresaFormData = z.infer<typeof createEmpresaSchema>;
 export type EmpresaBasicFormData = z.infer<typeof empresaBasicSchema>;
+export type EmpresaBasicSentinelaFormData = z.infer<typeof empresaBasicSentinelaSchema>;
 export type EmpresaContactFormData = z.infer<typeof empresaContactSchema>;
 export type AgenteConfigFormData = z.infer<typeof agenteConfigSchema>;
 export type ObjecaoFormData = z.infer<typeof objecaoSchema>;
 export type ProdutoFormData = z.infer<typeof produtoSchema>;
 export type WhatsAppConnectionFormData = z.infer<typeof whatsappConnectionSchema>;
+export type BlockedNumbersFormData = z.infer<typeof blockedNumbersSchema>;
 export type GatilhoEscalacaoFormData = z.infer<typeof gatilhoEscalacaoSchema>;
 export type FollowUpFormData = z.infer<typeof followUpSchema>;
 export type PerguntaQualificacaoFormData = z.infer<typeof perguntaQualificacaoSchema>;

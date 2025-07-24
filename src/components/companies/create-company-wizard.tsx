@@ -12,6 +12,7 @@ import {
   ObjecaoFormData,
   ProdutoFormData,
   WhatsAppConnectionFormData,
+  BlockedNumbersFormData,
   GatilhoEscalacaoFormData,
   FollowUpFormData,
   PerguntaQualificacaoFormData,
@@ -25,6 +26,7 @@ import { ContactInfoStep } from './wizard-steps/contact-info-step';
 import { AgentConfigStep } from './wizard-steps/agent-config-step';
 import { ObjectionsStep } from './wizard-steps/objections-step';
 import { ProductsStep } from './wizard-steps/products-step';
+import { BlockedNumbersStep } from './wizard-steps/blocked-numbers-step';
 import { WhatsAppStep } from './wizard-steps/whatsapp-step';
 import { AdvancedConfigStep } from './wizard-steps/advanced-config-step';
 import { StepIndicator } from './wizard-steps/step-indicator';
@@ -40,7 +42,8 @@ interface CreateCompanyWizardProps {
 const SENTINELA_STEPS = [
   { id: 1, name: 'Tipo de Agente', icon: Building2 },
   { id: 2, name: 'Informações Básicas', icon: Building2 },
-  { id: 3, name: 'WhatsApp', icon: Building2 },
+  { id: 3, name: 'Números Bloqueados', icon: Building2 },
+  { id: 4, name: 'WhatsApp', icon: Building2 },
 ];
 
 const VENDAS_STEPS = [
@@ -50,8 +53,9 @@ const VENDAS_STEPS = [
   { id: 4, name: 'Agente de Vendas', icon: Building2 },
   { id: 5, name: 'Objeções', icon: Building2 },
   { id: 6, name: 'Produtos', icon: Building2 },
-  { id: 7, name: 'WhatsApp', icon: Building2 },
-  { id: 8, name: 'Configurações Avançadas', icon: Building2 },
+  { id: 7, name: 'Números Bloqueados', icon: Building2 },
+  { id: 8, name: 'WhatsApp', icon: Building2 },
+  { id: 9, name: 'Configurações Avançadas', icon: Building2 },
 ];
 
 export function CreateCompanyWizard({ 
@@ -71,6 +75,7 @@ export function CreateCompanyWizard({
   const [agenteConfig, setAgenteConfig] = useState<Partial<AgenteConfigFormData>>({});
   const [objecoes, setObjecoes] = useState<ObjecaoFormData[]>([]);
   const [produtos, setProdutos] = useState<ProdutoFormData[]>([]);
+  const [blockedNumbers, setBlockedNumbers] = useState<string[]>([]);
   const [whatsappConnection, setWhatsappConnection] = useState<WhatsAppConnectionFormData>({ connected: false });
   const [gatilhosEscalacao, setGatilhosEscalacao] = useState<Partial<GatilhoEscalacaoFormData>>({});
   const [followUps, setFollowUps] = useState<FollowUpFormData[]>([]);
@@ -91,6 +96,7 @@ export function CreateCompanyWizard({
     setAgenteConfig({});
     setObjecoes([]);
     setProdutos([]);
+    setBlockedNumbers([]);
     setWhatsappConnection({ connected: false });
     setGatilhosEscalacao({});
     setFollowUps([]);
@@ -129,11 +135,14 @@ export function CreateCompanyWizard({
           setBasicInfo(stepData);
           break;
         case 3:
+          setBlockedNumbers(stepData.blocked_numbers);
+          break;
+        case 4:
           setWhatsappConnection(stepData);
           break;
       }
     } else if (selectedAgentType === AgentType.VENDAS) {
-      // Vendas flow: 8 steps
+      // Vendas flow: 9 steps
       switch (currentStep) {
         case 1:
           setSelectedAgentType(stepData);
@@ -154,9 +163,12 @@ export function CreateCompanyWizard({
           setProdutos(stepData);
           break;
         case 7:
-          setWhatsappConnection(stepData);
+          setBlockedNumbers(stepData.blocked_numbers);
           break;
         case 8:
+          setWhatsappConnection(stepData);
+          break;
+        case 9:
           setGatilhosEscalacao(stepData.gatilhos_escalacao);
           setFollowUps(stepData.follow_ups);
           setPerguntasQualificacao(stepData.perguntas_qualificacao);
@@ -190,6 +202,7 @@ export function CreateCompanyWizard({
         agente_config: Object.keys(agenteConfig).length > 0 ? agenteConfig as AgenteConfigFormData : undefined,
         objecoes: objecoes.length > 0 ? objecoes : undefined,
         produtos: produtos.length > 0 ? produtos : undefined,
+        blocked_numbers: blockedNumbers.length > 0 ? blockedNumbers : undefined,
         whatsapp_connection: whatsappConnection.connected ? whatsappConnection : undefined,
         gatilhos_escalacao: Object.keys(gatilhosEscalacao).length > 0 ? gatilhosEscalacao as GatilhoEscalacaoFormData : undefined,
         follow_ups: followUps.length > 0 ? followUps : undefined,
@@ -272,7 +285,7 @@ export function CreateCompanyWizard({
       );
     }
 
-    // Sentinela flow: 3 steps total
+    // Sentinela flow: 4 steps total
     if (selectedAgentType === AgentType.SENTINELA) {
       switch (currentStep) {
         case 2:
@@ -280,9 +293,18 @@ export function CreateCompanyWizard({
             <BasicInfoStep
               data={basicInfo}
               onNext={handleStepComplete}
+              agentType="sentinela"
             />
           );
         case 3:
+          return (
+            <BlockedNumbersStep
+              data={{ blocked_numbers: blockedNumbers }}
+              onNext={handleStepComplete}
+              onBack={handlePrevious}
+            />
+          );
+        case 4:
           return (
             <WhatsAppStep
               data={{
@@ -300,7 +322,7 @@ export function CreateCompanyWizard({
       }
     }
 
-    // Vendas flow: 8 steps total
+    // Vendas flow: 9 steps total
     if (selectedAgentType === AgentType.VENDAS) {
       switch (currentStep) {
         case 2:
@@ -308,6 +330,7 @@ export function CreateCompanyWizard({
             <BasicInfoStep
               data={basicInfo}
               onNext={handleStepComplete}
+              agentType="vendas"
             />
           );
         case 3:
@@ -344,6 +367,14 @@ export function CreateCompanyWizard({
           );
         case 7:
           return (
+            <BlockedNumbersStep
+              data={{ blocked_numbers: blockedNumbers }}
+              onNext={handleStepComplete}
+              onBack={handlePrevious}
+            />
+          );
+        case 8:
+          return (
             <WhatsAppStep
               data={{
                 ...whatsappConnection,
@@ -355,7 +386,7 @@ export function CreateCompanyWizard({
               agentType={basicInfo.setor || "empresa"}
             />
           );
-        case 8:
+        case 9:
           return (
             <AdvancedConfigStep
               gatilhosData={gatilhosEscalacao}

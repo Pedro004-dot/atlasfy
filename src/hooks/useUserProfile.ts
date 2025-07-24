@@ -88,7 +88,7 @@ export function useUserProfile(): UseUserProfileReturn {
 
   useEffect(() => {
     checkProfile();
-  }, []);
+  }, [checkProfile]);
 
   return {
     user,

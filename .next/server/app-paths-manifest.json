@@ -1,12 +1,4 @@
 {
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/clientes/route": "app/api/clientes/route.js",
-  "/api/auth/completar-perfil/route": "app/api/auth/completar-perfil/route.js",
-  "/api/empresas/route": "app/api/empresas/route.js",
-  "/api/dashboard/overview/route": "app/api/dashboard/overview/route.js",
-  "/api/analysis/conversations/route": "app/api/analysis/conversations/route.js",
-  "/(dashboard)/dashboard/empresa/page": "app/(dashboard)/dashboard/empresa/page.js",
-  "/(dashboard)/dashboard/clientes/page": "app/(dashboard)/dashboard/clientes/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/(dashboard)/dashboard/analise/page": "app/(dashboard)/dashboard/analise/page.js"
 }

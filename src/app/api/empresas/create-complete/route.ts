@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
           email: formData.email || null,
           website: formData.website || null,
           endereco: formData.endereco || null,
+          agent_type: formData.agent_type || 'vendas',
           ativo: true,
         }])
         .select()
@@ -226,6 +227,23 @@ export async function POST(request: NextRequest) {
           .insert(etapasWithEmpresaId);
 
         if (etapasError) throw etapasError;
+      }
+
+      // 10. Create blocked numbers if provided
+      if (formData.blocked_numbers && formData.blocked_numbers.length > 0) {
+        const blockedNumbersWithEmpresaId = formData.blocked_numbers.map(numero => ({
+          numero,
+          empresa_id: empresaId,
+          datehora: new Date().toISOString(),
+          agente_ativo: false,
+          ignorar_automacao: true
+        }));
+
+        const { error: blockedNumbersError } = await supabase
+          .from('agent_control')
+          .insert(blockedNumbersWithEmpresaId);
+
+        if (blockedNumbersError) throw blockedNumbersError;
       }
 
       // Return success response

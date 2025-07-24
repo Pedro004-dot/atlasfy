@@ -6,6 +6,7 @@ import { EmpresaSelector } from '@/components/EmpresaSelector';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ClienteAnalysisModal } from '@/components/cliente-analysis-modal';
 import { AlertTriangle, TrendingUp, MessageSquare, Clock, DollarSign, Users, Target, AlertCircle, Info, CheckCircle2, XCircle } from 'lucide-react';
 
 const timeFilters = [
@@ -89,6 +90,7 @@ const stageConfig = {
 interface ConversationAnalysis {
   conversation_id: string;
   cliente_telefone: string;
+  cliente_nome: string;
   status: string;
   created_at: string;
   last_message_at: string;
@@ -105,6 +107,17 @@ interface ConversationAnalysis {
       reasoning: string;
       confidence: number;
     };
+    next_actions?: Array<{
+      action: string;
+      priority: string;
+      description: string;
+      estimated_conversion_impact: string;
+    }>;
+    urgency_level?: {
+      level: string;
+      score: number;
+      factors: string[];
+    };
     purchase_intent: {
       score: number;
       barriers: string[];
@@ -114,6 +127,7 @@ interface ConversationAnalysis {
       conversion_probability: string | number;
       estimated_ticket_value: string | number;
       estimated_close_time_hours: string | number;
+      risk_factors?: string[];
     };
     products_mentioned: Array<{
       product: string;
@@ -123,7 +137,7 @@ interface ConversationAnalysis {
     sentiment_analysis: {
       customer_sentiment: string;
       satisfaction_score: string | number;
-      emotional_indicators: string[];
+      emotional_indicators?: string[];
     };
     conversation_metrics: {
       total_messages: number;
@@ -156,6 +170,8 @@ export default function AnalisePage() {
   const [metrics, setMetrics] = useState<AnalysisMetrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationAnalysis | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchAnalysisData = async () => {
     if (!empresaSelecionada) return;
@@ -209,6 +225,7 @@ export default function AnalisePage() {
     
     // Distribuir as conversas pelos estágios
     conversations.forEach(conv => {
+      console.log('[AnalisePage] conv:', conv);
       const stage = conv.analysis_data?.lead_status?.stage;
       
       if (stage && stages[stage]) {
@@ -254,15 +271,20 @@ export default function AnalisePage() {
     
     if (!value || value === 'N/A' || value === 'não_aplicável' || value === 'Não especificado na conversa' || value === '[Não especificado na conversa]' || value === 'INDEFINIDO' || value === 'Não informado' || value === 'indefinido' || value === 'Inválido') return 'N/A';
     
-    // Se é string, tentar extrair número
+    // Se é string, usar parsing melhorado
     if (typeof value === 'string') {
-      // Remover texto comum da IA e extrair apenas números
-      const cleanValue = value.replace(/[^0-9.,]/g, '').replace(',', '.');
-      const num = parseFloat(cleanValue);
-      return isNaN(num) ? 'N/A' : new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      }).format(num);
+      // Parsing simples e eficaz: extrair todos os números e pegar o maior
+      const matches = value.match(/\d+/g);
+      if (matches && matches.length > 0) {
+        const valores = matches.map(match => parseFloat(match)).filter(v => !isNaN(v) && v > 0);
+        const num = valores.length > 0 ? Math.max(...valores) : 0;
+        return num > 0 ? new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        }).format(num) : 'N/A';
+      } else {
+        return 'N/A';
+      }
     }
     
     // Se é número
@@ -279,6 +301,16 @@ export default function AnalisePage() {
   const openWhatsapp = (phone: string) => {
     const clean = phone.replace(/\D/g, '');
     window.open(`https://wa.me/${clean}`, '_blank');
+  };
+
+  const handleCardClick = (conv: ConversationAnalysis) => {
+    setSelectedConversation(conv);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedConversation(null);
   };
 
   const getUrgencyColor = (hoursAgo: number | null) => {
@@ -468,15 +500,20 @@ export default function AnalisePage() {
                             <Card 
                               key={conv.conversation_id}
                               className="p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border border-border hover:border-primary/20"
-                              onClick={() => openWhatsapp(conv.cliente_telefone)}
+                              onClick={() => handleCardClick(conv)}
                               style={{ cursor: 'pointer' }}
                             >
                               <div className="space-y-3">
                                 {/* Header - Cliente e Alertas */}
                                 <div className="flex items-center justify-between pb-2 border-b border-border">
-                                  <span className="font-semibold text-sm text-foreground">
-                                    {formatPhone(conv.cliente_telefone)}
-                                  </span>
+                                  <div className="flex flex-col">
+                                    <span className="font-semibold text-sm text-foreground">
+                                      {conv.cliente_nome}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {formatPhone(conv.cliente_telefone)}
+                                    </span>
+                                  </div>
                                   {conv.analysis_data?.alerts?.length > 0 && (
                                     <Badge variant="destructive" className="text-xs h-5 px-2 font-medium">
                                       {conv.analysis_data.alerts.length} 🚨
@@ -544,6 +581,14 @@ export default function AnalisePage() {
           </Card>
         </>
       )}
+      
+      {/* Modal de Detalhes do Cliente */}
+      <ClienteAnalysisModal
+      
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        conversation={selectedConversation || null}
+      />
       </div>
     </>
   );

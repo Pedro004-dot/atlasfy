@@ -12,6 +12,7 @@ export interface Empresa {
   website?: string;
   setor?: string;
   descricao?: string;
+  agent_type?: 'sentinela' | 'vendas';
   ativo: boolean;
   created_at: string;
   updated_at: string;
@@ -140,7 +141,10 @@ export interface CreateEmpresaData {
     instanceName?: string;
   };
   
-  // Step 7: Advanced Configurations
+  // Step 7: Blocked Numbers
+  blocked_numbers?: string[];
+  
+  // Step 8: Advanced Configurations
   gatilhos_escalacao?: Omit<GatilhoEscalacao, 'id' | 'empresa_id' | 'created_at' | 'updated_at'>;
   follow_ups?: Omit<FollowUp, 'id' | 'empresa_id' | 'created_at' | 'updated_at'>[];
   perguntas_qualificacao?: Omit<PerguntaQualificacao, 'id' | 'empresa_id' | 'created_at' | 'updated_at'>[];

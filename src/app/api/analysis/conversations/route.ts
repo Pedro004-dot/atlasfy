@@ -136,13 +136,38 @@ export async function GET(request: NextRequest) {
       console.log(`[API Analysis] Total conversas encontradas: ${fallbackData?.length || 0}`);
       console.log('Fallback data sample:', fallbackData?.slice(0, 2));
 
+      // Buscar dados dos clientes para fazer o join manual
+      const phoneSet = new Set(fallbackData?.map(item => {
+        const conversation = Array.isArray(item.conversations) ? item.conversations[0] : item.conversations;
+        return conversation.cliente_telefone;
+      }));
+      const uniquePhones = Array.from(phoneSet);
+
+      const { data: clientesData, error: clientesError } = await supabase
+        .from('cliente')
+        .select('id, nome, telefone, empresa_id')
+        .eq('empresa_id', empresaId)
+        .in('telefone', uniquePhones);
+
+      if (clientesError) {
+        console.error('Erro ao buscar clientes:', clientesError);
+      }
+
+      // Criar um mapa de telefone -> cliente para lookup rápido
+      const clienteMap = new Map();
+      clientesData?.forEach(cliente => {
+        clienteMap.set(cliente.telefone, cliente);
+      });
+
       const processedConversations = fallbackData?.map(item => {
         // Agora vamos da conversation_analysis para conversations
-        // const conversation = item.conversations;
         const conversation = Array.isArray(item.conversations) ? item.conversations[0] : item.conversations;
+        const cliente = clienteMap.get(conversation.cliente_telefone);
+        
         return {
           conversation_id: conversation.id, 
           cliente_telefone: conversation.cliente_telefone,
+          cliente_nome: cliente?.nome || 'Nome não informado',
           status: conversation.status,
           created_at: conversation.created_at,
           last_message_at: conversation.last_message_at,
@@ -171,8 +196,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Processar dados das conversas
-    const processedConversations = conversations || [];
+    // Processar dados das conversas (caso a RPC funcione no futuro)
+    const processedConversations = conversations?.map((conv: any) => ({
+      ...conv,
+      cliente_nome: conv.cliente_nome || 'Nome não informado'
+    })) || [];
     
     // Calcular métricas agregadas
     const metrics = calculateMetrics(processedConversations);
@@ -239,17 +267,23 @@ function calculateMetrics(conversations: any[]) {
         
         let numericValue = 0;
         if (typeof ticketValue === 'string') {
-          // Extrair apenas números e vírgulas/pontos da string
-          const cleanValue = ticketValue.replace(/[^0-9.,]/g, '').replace(',', '.');
-          numericValue = parseFloat(cleanValue);
+          // Parsing simples e eficaz: extrair todos os números e pegar o maior
+          const matches = ticketValue.match(/\d+/g);
+          if (matches && matches.length > 0) {
+            const valores = matches.map(match => parseFloat(match)).filter(v => !isNaN(v) && v > 0);
+            numericValue = valores.length > 0 ? Math.max(...valores) : 0;
+          }
         } else if (typeof ticketValue === 'number') {
           numericValue = ticketValue;
         }
         
-        if (!isNaN(numericValue) && numericValue > 0) {
+        // Validação de segurança para evitar valores absurdos
+        if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 500000) {
           totalRevenue += numericValue;
           totalTicketValues += numericValue;
           validTicketCount++;
+        } else if (numericValue > 500000) {
+          console.warn(`[VALOR SUSPEITO IGNORADO] ${numericValue} de: "${ticketValue}"`);
         }
       }
 

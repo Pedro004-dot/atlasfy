@@ -89,7 +89,7 @@ export function EmpresaProvider({ children }: EmpresaProviderProps) {
     if (user?.id) {
       fetchEmpresas();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchEmpresas]);
 
   // A seleção da empresa é feita apenas em fetchEmpresas após validar acesso
 
