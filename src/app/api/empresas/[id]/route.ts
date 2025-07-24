@@ -86,9 +86,28 @@ export async function GET(
       );
     }
 
+    // Buscar números bloqueados
+    console.log('[GET EMPRESA] Buscando números bloqueados para empresa:', empresaId);
+    const { data: blockedNumbersData, error: blockedError } = await supabase
+      .from('agent_control')
+      .select('numero')
+      .eq('empresa_id', empresaId)
+      .eq('ignorar_automacao', true);
+
+    if (blockedError) {
+      console.error('[GET EMPRESA] Erro ao buscar números bloqueados:', blockedError);
+    } else {
+      console.log('[GET EMPRESA] Números bloqueados encontrados:', blockedNumbersData);
+    }
+
+    const blocked_numbers = blockedError ? [] : (blockedNumbersData?.map(item => item.numero) || []);
+
+    console.log('[GET EMPRESA] Retornando empresa com blocked_numbers:', blocked_numbers);
+
     // Adicionar contadores (mock por enquanto)
     const empresaComContadores = {
       ...empresa,
+      blocked_numbers,
       _count: {
         usuarios: 1, // Mock - implementar contagem real depois
         agentes: 0   // Mock - implementar contagem real depois
@@ -136,7 +155,16 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { nome, cnpj, telefone, endereco, email, website, setor, descricao, ativo, agent_type } = body;
+    const { nome, cnpj, telefone, endereco, email, website, setor, descricao, ativo, agent_type, blocked_numbers } = body;
+    
+    console.log('[EDIT EMPRESA DEBUG] Dados recebidos:', {
+      empresaId,
+      nome,
+      blocked_numbers,
+      blocked_numbers_type: typeof blocked_numbers,
+      blocked_numbers_isArray: Array.isArray(blocked_numbers),
+      blocked_numbers_length: blocked_numbers?.length
+    });
 
     // Buscar empresa existente para determinar o tipo de agente
     const supabase = databaseService.getClient();
@@ -195,7 +223,7 @@ export async function PUT(
         ...updateData,
         telefone: telefone?.replace(/\D/g, '') || null, // Garantir formato limpo
         descricao: descricao?.trim() || null,
-        ativo: ativo !== undefined ? ativo : true,
+        ativo: ativo !== undefined ? ativo : true
       };
     } else {
       // Para Vendas: todos os campos podem ser alterados
@@ -208,7 +236,7 @@ export async function PUT(
         website: website?.trim() || null,
         setor: setor?.trim() || null,
         descricao: descricao?.trim() || null,
-        ativo: ativo !== undefined ? ativo : true,
+        ativo: ativo !== undefined ? ativo : true
       };
     }
 
@@ -228,9 +256,66 @@ export async function PUT(
       );
     }
 
+    // Atualizar números bloqueados usando a mesma estratégia da criação
+    console.log('[BLOCKED NUMBERS] Dados recebidos:', { blocked_numbers, isArray: Array.isArray(blocked_numbers) });
+    
+    if (Array.isArray(blocked_numbers)) {
+      // 1. Remover números bloqueados existentes
+      const { error: deleteError } = await supabase
+        .from('agent_control')
+        .delete()
+        .eq('empresa_id', empresaId)
+        .eq('ignorar_automacao', true);
+
+      if (deleteError) {
+        console.error('[BLOCKED NUMBERS] Erro ao deletar números existentes:', deleteError);
+        return NextResponse.json(
+          { success: false, message: 'Erro ao atualizar números bloqueados' },
+          { status: 500 }
+        );
+      }
+
+      // 2. Inserir novos números (usando a mesma implementação da criação)
+      if (blocked_numbers.length > 0) {
+        const blockedNumbersWithEmpresaId = blocked_numbers.map(numero => ({
+          numero,
+          empresa_id: empresaId,
+          datehora: new Date().toISOString(),
+          agente_ativo: false,
+          ignorar_automacao: true
+        }));
+
+        console.log('[BLOCKED NUMBERS] Inserindo números:', blockedNumbersWithEmpresaId);
+
+        const { error: blockedNumbersError } = await supabase
+          .from('agent_control')
+          .insert(blockedNumbersWithEmpresaId);
+
+        if (blockedNumbersError) {
+          console.error('[BLOCKED NUMBERS] Erro ao inserir números:', blockedNumbersError);
+          return NextResponse.json(
+            { success: false, message: 'Erro ao salvar números bloqueados' },
+            { status: 500 }
+          );
+        }
+
+        console.log('[BLOCKED NUMBERS] Números inseridos com sucesso');
+      }
+    }
+
+    // Buscar números bloqueados atualizados
+    const { data: updatedBlockedNumbers, error: blockedFetchError } = await supabase
+      .from('agent_control')
+      .select('numero')
+      .eq('empresa_id', empresaId)
+      .eq('ignorar_automacao', true);
+
+    const updated_blocked_numbers = blockedFetchError ? [] : (updatedBlockedNumbers?.map(item => item.numero) || []);
+
     // Retornar empresa atualizada com contadores
     const empresaComContadores = {
       ...empresa,
+      blocked_numbers: updated_blocked_numbers,
       _count: {
         usuarios: 1, // Mock - implementar contagem real depois
         agentes: 0   // Mock - implementar contagem real depois
