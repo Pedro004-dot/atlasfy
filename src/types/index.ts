@@ -160,6 +160,7 @@ export interface Empresa {
   ativo: boolean;
   created_at: string;
   updated_at: string;
+  blocked_numbers?: string[];
   _count?: {
     usuarios: number;
     agentes: number;

@@ -11,8 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
-import { Building2, Phone, Shield, Edit, Loader2, AlertCircle } from 'lucide-react';
+import { Building2, Phone, Shield, Edit, Loader2, AlertCircle, ShieldX } from 'lucide-react';
 import { Empresa } from '@/types/index';
+import { BlockedNumbersEditor } from './blocked-numbers-editor';
 
 // Validation schema based on agent type
 const createEmpresaEditSchema = (agentType: 'sentinela' | 'vendas') => {
@@ -24,6 +25,11 @@ const createEmpresaEditSchema = (agentType: 'sentinela' | 'vendas') => {
       .max(500, 'Descrição deve ter no máximo 500 caracteres')
       .optional(),
     ativo: z.boolean().optional(),
+    blocked_numbers: z.array(z.string()
+      .regex(/^55\d{11}$/, 'Número deve ter 13 dígitos no formato 5531996997292')
+      .refine((value) => value.startsWith('55'), 'Número deve começar com código do país 55')
+      .refine((value) => value.length === 13, 'Número deve ter exatamente 13 dígitos')
+    ).default([]),
   };
 
   if (agentType === 'sentinela') {
@@ -69,12 +75,15 @@ interface EditCompanyModalProps {
 
 export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }: EditCompanyModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [blockedNumbers, setBlockedNumbers] = useState<string[]>([]);
   const { addToast } = useToast();
 
   const agentType = (company?.agent_type || 'vendas') as 'sentinela' | 'vendas';
   const schema = createEmpresaEditSchema(agentType);
   
-  const form = useForm();
+  const form = useForm({
+    resolver: zodResolver(schema as any)
+  });
 
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
@@ -84,6 +93,16 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
       setValue('nome', company.nome || '');
       setValue('descricao', company.descricao || '');
       setValue('ativo', company.ativo);
+      
+      // Set blocked numbers
+      const initialBlockedNumbers = Array.isArray(company.blocked_numbers) ? company.blocked_numbers : [];
+      console.log('[MODAL DEBUG] Carregando números bloqueados:', {
+        company_blocked_numbers: company.blocked_numbers,
+        initialBlockedNumbers,
+        isArray: Array.isArray(company.blocked_numbers)
+      });
+      setBlockedNumbers(initialBlockedNumbers);
+      setValue('blocked_numbers', initialBlockedNumbers);
 
       if (agentType === 'sentinela') {
         setValue('telefone', company.telefone || '');
@@ -96,7 +115,13 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
         setValue('setor', company.setor || '');
       }
     }
-  }, [company, isOpen, setValue, agentType]);
+  }, [company, isOpen]);
+
+  // Handler for blocked numbers changes
+  const handleBlockedNumbersChange = (numbers: string[]) => {
+    setBlockedNumbers(numbers);
+    setValue('blocked_numbers', numbers);
+  };
 
   const onSubmit = async (data: any) => {
     if (!company) return;
@@ -107,13 +132,26 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
       const token = localStorage.getItem('auth-token');
       if (!token) throw new Error('Token não encontrado');
 
+      // Include blocked numbers in the data
+      const submitData = {
+        ...data,
+        blocked_numbers: blockedNumbers,
+      };
+
+      console.log('[FRONTEND DEBUG] Enviando dados para API:', {
+        submitData,
+        blockedNumbers,
+        blockedNumbers_length: blockedNumbers.length,
+        company_id: company.id
+      });
+
       const response = await fetch(`/api/empresas/${company.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       });
 
       const result = await response.json();
@@ -142,6 +180,7 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
 
   const handleClose = () => {
     reset();
+    setBlockedNumbers([]);
     onClose();
   };
 
@@ -368,6 +407,20 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
                 </div>
               </div>
             )}
+
+            {/* Números Bloqueados */}
+            <div className="bg-muted p-6" style={{ borderRadius: 'var(--radius)' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <ShieldX className="h-5 w-5 text-muted-foreground" />
+                <h3 className="atlas-heading font-semibold text-foreground">Números Bloqueados</h3>
+              </div>
+              
+              <BlockedNumbersEditor
+                initialNumbers={blockedNumbers}
+                onChange={handleBlockedNumbersChange}
+                disabled={isSubmitting}
+              />
+            </div>
 
             {/* Status */}
             <div className="bg-muted p-6" style={{ borderRadius: 'var(--radius)' }}>

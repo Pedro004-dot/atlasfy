@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface Empresa {
@@ -30,7 +30,7 @@ export function EmpresaProvider({ children }: EmpresaProviderProps) {
   const { user } = useAuth();
 
   // Buscar empresas do usuário
-  const fetchEmpresas = async () => {
+  const fetchEmpresas = useCallback(async () => {
     if (!user?.id) return;
     
     setIsLoading(true);
@@ -76,7 +76,7 @@ export function EmpresaProvider({ children }: EmpresaProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
 
   // Selecionar empresa
   const selecionarEmpresa = (empresaId: string) => {

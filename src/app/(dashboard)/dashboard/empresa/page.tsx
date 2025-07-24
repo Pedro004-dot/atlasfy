@@ -75,14 +75,41 @@ export default function EmpresaPage() {
     setIsCreateModalOpen(false);
   };
 
-  const handleEdit = (company: Empresa) => {
-    setSelectedCompany(company);
-    setIsEditModalOpen(true);
+  const handleEdit = async (company: Empresa) => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      if (!token) {
+        throw new Error('Token não encontrado');
+      }
+
+      console.log('[EDIT] Buscando dados completos da empresa:', company.id);
+
+      const response = await fetch(`/api/empresas/${company.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log('[EDIT] Dados completos carregados:', result.data);
+        setSelectedCompany(result.data); // Dados completos com blocked_numbers
+        setIsEditModalOpen(true);
+      } else {
+        throw new Error(result.message || 'Erro ao carregar empresa');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar empresa para edição:', error);
+      addToast({
+        type: 'error',
+        message: 'Erro ao carregar dados da empresa'
+      });
+    }
   };
 
-  const handleCardClick = (company: Empresa) => {
-    setSelectedCompany(company);
-    setIsEditModalOpen(true);
+  const handleCardClick = async (company: Empresa) => {
+    await handleEdit(company);
   };
 
   const handleCompanyUpdated = (updatedCompany: Empresa) => {
