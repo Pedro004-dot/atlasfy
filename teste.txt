@@ -1,0 +1,818 @@
+[
+  {
+    "id": "a672001c-9fc4-4410-95b0-a381b12a35c9",
+    "conversation_id": "97452725-47dd-43f5-8a91-11eed02abca3",
+    "analysis_data": {
+      "alerts": [],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "O cliente confirmou o recebimento do anel (\"Uhuuuu\", \"Combinado\") e confirmou a retirada na loja (\"Obrigado, passo ai hoje\"). A empresa confirmou o recebimento e aguardará o cliente (\"Aguardo você 😉\"). A conversa iniciou com a confirmação do prazo de fabricação do anel.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Monitorar a chegada do cliente na loja",
+          "priority": "Baixa",
+          "description": "Aguardar o cliente na loja no horário combinado. Caso haja atraso significativo, entrar em contato para verificar o motivo.",
+          "estimated_conversion_impact": "0% - Venda já concluída"
+        }
+      ],
+      "urgency_level": {
+        "level": "Baixa",
+        "score": 0.2,
+        "factors": [
+          "O cliente já havia sido informado sobre a conclusão do produto, a urgência se limita à retirada do produto. O tempo de resposta foi satisfatório."
+        ]
+      },
+      "purchase_intent": {
+        "score": 1,
+        "barriers": [],
+        "indicators": [
+          "O cliente confirmou a retirada do produto.",
+          "O cliente demonstrou satisfação com a conclusão do pedido.",
+          "O cliente solicitou o endereço da loja para buscar o produto."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [],
+        "conversion_probability": 1,
+        "estimated_ticket_value": "Desconhecido",
+        "estimated_close_time_hours": "0 - Venda fechada"
+      },
+      "products_mentioned": [
+        {
+          "product": "Anel",
+          "variant": "Não especificado",
+          "interest_level": "Alto - Compra concretizada"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo",
+        "satisfaction_score": 1,
+        "emotional_indicators": [
+          "Uhuuuu",
+          "Combinado",
+          "Obrigado"
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 10,
+        "company_messages": 6,
+        "customer_messages": 4,
+        "response_time_avg_minutes": 0.4616166666666666,
+        "last_interaction_hours_ago": 7.2381858333333335
+      }
+    },
+    "created_at": "2025-07-23 20:46:31.189198+00",
+    "updated_at": "2025-07-23 22:02:55.803216+00"
+  },
+  {
+    "id": "fd9089e4-54cc-4f01-b857-e1ec03687c19",
+    "conversation_id": "7dbb4874-0e19-4b6a-94a1-8c6dc85e81b3",
+    "analysis_data": {
+      "alerts": [],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "A cliente enviou o comprovante de pagamento (https://recibo.infinitepay.io/a046ea35-b656-442d-8a3b-592517a3c54f) e a empresa confirmou o pedido como feito.  A conversa finaliza com a confirmação da compra por ambas as partes.",
+        "confidence": 1
+      },
+      "next_actions": [
+        {
+          "action": "Confirmar recebimento do pagamento e detalhar os próximos passos para a produção e entrega dos anéis.",
+          "priority": "Alta",
+          "description": "Enviar uma mensagem confirmando o recebimento do pagamento, informando o prazo estimado de entrega (considerando a urgência), e providenciar o envio da guia de rastreamento assim que disponível.",
+          "estimated_conversion_impact": "100% - A venda já foi concluída."
+        },
+        {
+          "action": "Realizar um follow-up sobre os brincos para bebê.",
+          "priority": "Média",
+          "description": "Enviar uma mensagem em alguns dias, com fotos dos brincos selecionados pela cliente ou outros modelos similares, como forma de nurturing e potencialmente gerar uma nova venda.",
+          "estimated_conversion_impact": "20-30% -  Probabilidade moderada de conversão, dependendo do interesse da cliente e da oferta."
+        }
+      ],
+      "urgency_level": {
+        "level": "Alta",
+        "score": 0.9,
+        "factors": [
+          "A cliente precisava dos anéis para um presente e para uma viagem, demandando entrega rápida.  Ela reiterou a urgência em diversas mensagens."
+        ]
+      },
+      "purchase_intent": {
+        "score": 1,
+        "barriers": [
+          "Inicialmente, a falta de pronta entrega do anel foi um obstáculo. A necessidade de urgência também criou uma barreira, mas foi superada com a concordância da empresa em priorizar o pedido."
+        ],
+        "indicators": [
+          "A cliente perguntou sobre o preço à vista do anel, especificou a numeração, solicitou informações sobre a entrega, negociou o pagamento parcelado e, finalmente, enviou o comprovante de pagamento."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [
+          "Inicialmente, o prazo de entrega era um risco, mas foi mitigado pela negociação."
+        ],
+        "conversion_probability": 1,
+        "estimated_ticket_value": 1384.3,
+        "estimated_close_time_hours": 0
+      },
+      "products_mentioned": [
+        {
+          "product": "Anel de coração vazado",
+          "variant": "Tamanho 21.5 (dois anéis)",
+          "interest_level": "Alto - Compra realizada"
+        },
+        {
+          "product": "Brincos para bebê",
+          "variant": "Vários modelos mencionados",
+          "interest_level": "Médio - Interesse demonstrado, mas a compra não foi concluída."
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo - A cliente demonstrou satisfação ao final da conversa, agradecendo e confirmando a compra.",
+        "satisfaction_score": 0.8,
+        "emotional_indicators": [
+          "Uso de 'kkk' em algumas mensagens indica um tom leve e descontraído,  'Obrigada' demonstra agradecimento."
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 66,
+        "company_messages": 35,
+        "customer_messages": 31,
+        "response_time_avg_minutes": 11.975349999999997,
+        "last_interaction_hours_ago": 1.3373772222222222
+      }
+    },
+    "created_at": "2025-07-23 20:47:41.905048+00",
+    "updated_at": "2025-07-24 21:39:58.21438+00"
+  },
+  {
+    "id": "7bfccdbc-5014-4546-85e9-ddbc0415e143",
+    "conversation_id": "d2c69b8a-625a-40fe-8052-32f366045a66",
+    "analysis_data": {
+      "alerts": [
+        {
+          "type": "Sucesso na Venda",
+          "message": "Venda concluída com sucesso, mas o tempo de resposta pode ser otimizado.",
+          "severity": "Baixa",
+          "action_required": "Analisar o motivo do atraso na resposta e implementar melhorias no processo para reduzir o tempo de resposta."
+        }
+      ],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "A mensagem final da empresa indica que o pedido foi feito (\"*Pedido feito ✅*\").  Apesar da ausência de comprovante de pagamento explícito, a afirmação conclusiva da empresa, combinada com a resposta negativa inicial do cliente ('Não consegui não') e a subsequente oferta de ajuda da empresa ('Posso está te passando novamente?'), sugere fortemente que o processo de compra foi finalizado com sucesso após a intervenção da empresa.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Monitorar o envio e entrega do produto.",
+          "priority": "Média",
+          "description": "Acompanhar o processo logístico para garantir que o cliente receba o produto em perfeitas condições e dentro do prazo.  Proativamente, enviar uma mensagem de agradecimento e satisfação pós-compra.",
+          "estimated_conversion_impact": "Baixo (já concluído)"
+        },
+        {
+          "action": "Análise da jornada do cliente",
+          "priority": "Alta",
+          "description": "Investigar por que o cliente inicialmente não conseguiu concluir a compra sozinho, identificando possíveis pontos de melhoria no site ou processo de compra.",
+          "estimated_conversion_impact": "Médio-Alto (melhoria em vendas futuras)"
+        }
+      ],
+      "urgency_level": {
+        "level": "Baixa",
+        "score": 0.2,
+        "factors": [
+          "O tempo de resposta da empresa foi relativamente longo (aproximadamente 16 minutos em média), indicando baixa urgência percebida pela empresa.",
+          "A conversa concluiu-se e não há ações pendentes do cliente."
+        ]
+      },
+      "purchase_intent": {
+        "score": 0.8,
+        "barriers": [
+          "O cliente inicialmente não conseguiu adquirir o produto sozinho.",
+          "Tempo de resposta da empresa"
+        ],
+        "indicators": [
+          "O cliente demonstrou interesse inicial no produto ('você conseguiu adquirir o seu?')",
+          "A empresa conseguiu concluir a venda após o cliente relatar dificuldades iniciais."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [
+          "Tempo de resposta longo.  Recomenda-se monitoramento da entrega para garantir a satisfação total do cliente."
+        ],
+        "conversion_probability": 1,
+        "estimated_ticket_value": "[Valor do produto - precisa ser obtido do sistema]",
+        "estimated_close_time_hours": "0 (já concluído)"
+      },
+      "products_mentioned": [
+        {
+          "product": "Foto personalizada em Prata",
+          "variant": null,
+          "interest_level": "Alto"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Neutro a Positivo (Inicialmente frustrado, mas com resolução positiva)",
+        "satisfaction_score": 0.7,
+        "emotional_indicators": [
+          "Ausência de emojis, mas a resposta final da empresa sugere um resultado positivo"
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 5,
+        "company_messages": 3,
+        "customer_messages": 2,
+        "response_time_avg_minutes": 16.575516666666665,
+        "last_interaction_hours_ago": 6.307228611111111
+      }
+    },
+    "created_at": "2025-07-24 21:37:03.653755+00",
+    "updated_at": "2025-07-24 21:37:03.653755+00"
+  },
+  {
+    "id": "20fcb303-9b87-468c-a33d-2f4e8d7febd4",
+    "conversation_id": "b3cbc8f7-58ac-4cd5-858f-cc150e300978",
+    "analysis_data": {
+      "alerts": [
+        {
+          "type": "Tempo de resposta",
+          "message": "O tempo médio de resposta foi muito alto (aproximadamente 14 horas).  É necessário analisar os processos internos para melhorar a comunicação com os clientes.",
+          "severity": "Média",
+          "action_required": "Revisar os protocolos de atendimento ao cliente para reduzir o tempo de resposta. Implementar um sistema de notificação automatizado para mensagens de clientes."
+        }
+      ],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "O cliente solicitou os dados do Pix ([2025-07-22T22:03:32.93+00:00] e [2025-07-22T22:03:34.627+00:00]), recebeu as informações ([2025-07-23T12:19:02.054+00:00]), confirmou com um '👍🏼' ([2025-07-23T12:48:43.34+00:00]), e a empresa enviou o código de rastreio, confirmando o envio do pedido ([2025-07-24T17:13:51.118+00:00]).  Todos os passos de uma compra foram completados.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Monitorar o recebimento do produto pelo cliente.",
+          "priority": "Baixa",
+          "description": "Acompanhar o código de rastreio e enviar uma mensagem de satisfação após a confirmação do recebimento.  Solicitar feedback sobre a experiência de compra.",
+          "estimated_conversion_impact": "0% - Venda já concluída"
+        },
+        {
+          "action": "Analisar o tempo de resposta",
+          "priority": "Alta",
+          "description": "Identificar gargalos no processo de atendimento e implementar melhorias para reduzir o tempo de resposta e melhorar a experiência do cliente.",
+          "estimated_conversion_impact": "Potencialmente alto - Melhora na satisfação do cliente e aumento de vendas futuras."
+        }
+      ],
+      "urgency_level": {
+        "level": "Baixa",
+        "score": 0.1,
+        "factors": [
+          "O pedido já foi enviado e o cliente confirmou o pagamento. Não há urgência imediata."
+        ]
+      },
+      "purchase_intent": {
+        "score": 1,
+        "barriers": [],
+        "indicators": [
+          "Solicitação explícita dos dados do Pix, confirmação do pagamento com emoji positivo, envio do código de rastreio pela empresa."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [
+          "Tempo de resposta alto."
+        ],
+        "conversion_probability": 1,
+        "estimated_ticket_value": "Desconhecido",
+        "estimated_close_time_hours": "0 - Venda concluída"
+      },
+      "products_mentioned": [
+        {
+          "product": "Não especificado",
+          "variant": "Não especificado",
+          "interest_level": "Alto - Compra concretizada"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo",
+        "satisfaction_score": 0.8,
+        "emotional_indicators": [
+          "Uso do emoji '👍🏼' indica satisfação."
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 7,
+        "company_messages": 4,
+        "customer_messages": 3,
+        "response_time_avg_minutes": 855.460075,
+        "last_interaction_hours_ago": 4.412450555555556
+      }
+    },
+    "created_at": "2025-07-22 20:10:00.168262+00",
+    "updated_at": "2025-07-24 21:38:43.310989+00"
+  },
+  {
+    "id": "49d6f18b-e0ce-453a-a45e-a4e992ec3922",
+    "conversation_id": "1a5ce2f8-4457-4607-b54d-e954f9b97b93",
+    "analysis_data": {
+      "alerts": [
+        {
+          "type": "Venda Concluída",
+          "message": "A venda foi finalizada com sucesso.  Monitorar o pagamento do restante do valor.",
+          "severity": "Baixa",
+          "action_required": "Enviar comprovante de pagamento e informações de envio/entrega.  Acompanhar o processo de produção e envio do pingente."
+        }
+      ],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "O cliente confirmou o pagamento parcial anteriormente e, após negociação sobre o tamanho do pingente, confirmou a compra do modelo menor (25x30) e o pagamento do restante. A mensagem final da empresa confirma que o pedido foi feito.  Mensagens chave: 'eu já fiz até o pagamento de metade', 'então pode fazer ele então, hein? ... eu já dei a entrada já mandei a metade do pagamento... então só para não ficar pronto, você me manda o restante que falta e eu faço o pagamento', '*Pedido feito ✅ agradeço a preferência...'.",
+        "confidence": 0.98
+      },
+      "next_actions": [
+        {
+          "action": "Confirmar recebimento do pagamento restante",
+          "priority": "Alta",
+          "description": "Solicitar ao cliente o comprovante de pagamento e confirmar o recebimento. Iniciar o processo de produção do pingente personalizado.",
+          "estimated_conversion_impact": "100% (venda já concluída)"
+        },
+        {
+          "action": "Enviar informações de rastreamento",
+          "priority": "Média",
+          "description": "Assim que o pingente estiver pronto para envio, informar o cliente sobre o código de rastreamento.",
+          "estimated_conversion_impact": "Manutenção do cliente, fidelização"
+        },
+        {
+          "action": "Solicitar feedback pós-venda",
+          "priority": "Baixa",
+          "description": "Após a entrega, enviar uma mensagem solicitando feedback sobre a experiência de compra e o produto.",
+          "estimated_conversion_impact": "Fidelização, geração de reviews"
+        }
+      ],
+      "urgency_level": {
+        "level": "Baixa (após finalização)",
+        "score": 0.1,
+        "factors": [
+          "A venda foi concluída, não há urgência imediata. O cliente já havia feito um pagamento antecipado."
+        ]
+      },
+      "purchase_intent": {
+        "score": 0.99,
+        "barriers": [
+          "Inicialmente houve uma discrepância entre o modelo desejado pelo cliente e o oferecido pela empresa, que foi superada com ajustes no pedido."
+        ],
+        "indicators": [
+          "Pagamento parcial realizado previamente",
+          "Negociação ativa sobre tamanho e preço",
+          "Confirmação final da compra e pagamento do restante",
+          "Cliente expressou a intenção de fechar a compra com frases como 'pode fazer ele então' e 'para fechar então'"
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [
+          "Risco baixo, a venda foi concluída com sucesso. Monitorar apenas o recebimento do pagamento restante e entrega do produto."
+        ],
+        "conversion_probability": 1,
+        "estimated_ticket_value": 1790,
+        "estimated_close_time_hours": 0
+      },
+      "products_mentioned": [
+        {
+          "product": "Pingente de ouro com fotogravação",
+          "variant": "Retangular (25x30mm), sem quinas, personalizado com foto de família",
+          "interest_level": "Alto (compra concretizada)"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo (após resolução do problema inicial)",
+        "satisfaction_score": 0.85,
+        "emotional_indicators": [
+          "Expressões de concordância e satisfação após a negociação do tamanho e preço."
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 33,
+        "company_messages": 20,
+        "customer_messages": 13,
+        "response_time_avg_minutes": 1.64,
+        "last_interaction_hours_ago": 6.36
+      }
+    },
+    "created_at": "2025-07-24 21:40:45.117542+00",
+    "updated_at": "2025-07-24 21:40:45.117542+00"
+  },
+  {
+    "id": "6ed2e5c9-df43-4639-bf0a-b3be1b595c2d",
+    "conversation_id": "438c8d50-61c9-4d62-85ae-4317e3172fff",
+    "analysis_data": {
+      "alerts": [
+        {
+          "type": "NÃO APLICÁVEL",
+          "message": "A conversão foi concluída e o pagamento foi solicitado.",
+          "severity": "BAIXO",
+          "action_required": "Preparar a entrega do produto."
+        }
+      ],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "O cliente confirmou a compra explicitamente (\"Feito!\"), combinou a forma de pagamento (PIX) e recebeu o link para efetuar o pagamento. O processo está completo, faltando apenas a entrega.",
+        "confidence": 0.98
+      },
+      "next_actions": [
+        {
+          "action": "Confirmar a data de entrega ao cliente.",
+          "priority": "MÉDIA",
+          "description": "Acompanhar o pagamento e gerar o pedido de entrega.",
+          "estimated_conversion_impact": "NULO"
+        }
+      ],
+      "urgency_level": {
+        "level": "BAIXA",
+        "score": 0.2,
+        "factors": [
+          "O cliente fez a compra com antecedência e a última mensagem estabelece o pagamento.",
+          "O cliente não solicitou uma data de entrega imediata."
+        ]
+      },
+      "purchase_intent": {
+        "score": 0.95,
+        "barriers": [
+          "Nenhum obstáculo aparente na conversa, apenas a confirmação de pagamento."
+        ],
+        "indicators": [
+          "O cliente demonstrou interesse pelo Mac Mini (\"O Mac Mini parece interessante\").",
+          "Pediu o Mac Mini com o combo de teclado e mouse.",
+          "Concluiu a compra explicitamente."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [
+          "Nenhum risco aparente identificado."
+        ],
+        "conversion_probability": 1,
+        "estimated_ticket_value": 7503,
+        "estimated_close_time_hours": "Dentro de 1 dia (se o pagamento for aprovado)"
+      },
+      "products_mentioned": [
+        {
+          "product": "Mac Mini M2",
+          "variant": "Modelo padrão",
+          "interest_level": "ALTO"
+        },
+        {
+          "product": "Magic Keyboard",
+          "variant": "Modelo padrão",
+          "interest_level": "ALTO"
+        },
+        {
+          "product": "Magic Mouse",
+          "variant": "Modelo padrão",
+          "interest_level": "ALTO"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "POSITIVO",
+        "satisfaction_score": "ALTO",
+        "emotional_indicators": [
+          "🎉"
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 10,
+        "company_messages": 5,
+        "customer_messages": 5,
+        "response_time_avg_minutes": 3.75,
+        "last_interaction_hours_ago": 44.81372777777778
+      }
+    },
+    "created_at": "2025-07-21 19:21:20.475301+00",
+    "updated_at": "2025-07-23 14:49:40.822559+00"
+  },
+  {
+    "id": "e418993c-a4cb-49c1-a094-cd91baf2aba4",
+    "conversation_id": "2b037679-24bc-4e90-8171-33898315ddf0",
+    "analysis_data": {
+      "alerts": [],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "O cliente confirmou a compra ( 'Gostei do rosa! Posso ir buscar na loja?', 'Posso ir agora! Levo cartão'),  especificou o modelo desejado e a forma de pagamento (cartão). A empresa confirmou a reserva e a disponibilidade para retirada imediata ('Perfeito! Te esperamos'). A última mensagem ('Chegando aí! Obrigada 😊')  confirma o encerramento da transação.",
+        "confidence": 0.98
+      },
+      "next_actions": [
+        {
+          "action": "Confirmar a compra com o cliente, confirmar o recebimento do pagamento,  registrar a venda e encaminhar a entrega.",
+          "priority": "BAIXA",
+          "description": "O cliente já se encontra a caminho da loja, portanto, a ação prioritária é a confirmação e o acompanhamento do processo.",
+          "estimated_conversion_impact": 1
+        }
+      ],
+      "urgency_level": {
+        "level": "MÉDIO",
+        "score": 0.6,
+        "factors": [
+          "O cliente expressou a vontade de ir imediatamente para a loja para a compra, demonstrando urgência."
+        ]
+      },
+      "purchase_intent": {
+        "score": 0.95,
+        "barriers": [
+          "Nenhum obstáculo significativo foi identificado durante a conversa."
+        ],
+        "indicators": [
+          "O cliente inicialmente solicitou informações de preço, indicando interesse.",
+          "O cliente especificou a memória e a cor, demonstrando um desejo específico.",
+          "O cliente confirmou a compra e a forma de pagamento."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [],
+        "conversion_probability": 1,
+        "estimated_ticket_value": 6999,
+        "estimated_close_time_hours": 0.5
+      },
+      "products_mentioned": [
+        {
+          "product": "iPhone 15",
+          "variant": "128GB, Rosa",
+          "interest_level": "ALTO"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "POSITIVO",
+        "satisfaction_score": 0.9,
+        "emotional_indicators": [
+          "😊"
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 10,
+        "company_messages": 5,
+        "customer_messages": 5,
+        "response_time_avg_minutes": 3,
+        "last_interaction_hours_ago": 44.021165
+      }
+    },
+    "created_at": "2025-07-21 19:30:51.502079+00",
+    "updated_at": "2025-07-23 14:49:32.05444+00"
+  },
+  {
+    "id": "575d0ea4-c686-47bf-b434-83375f1442f8",
+    "conversation_id": "c0aec053-16cb-47d6-8fd5-cc58d7021a49",
+    "analysis_data": {
+      "alerts": [
+        {
+          "type": "NENHUMA_ALERTA_CRITICA",
+          "message": "A compra foi finalizada e o cliente manifestou satisfação.",
+          "severity": "BAIXO",
+          "action_required": "Nenhuma ação necessária."
+        }
+      ],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "A última mensagem 'Muito obrigada' indica o término do processo da venda. A mensagem anterior 'Ok' pode ser interpretada como aceitação da oferta ou confirmação de algum detalhe.  Não há menções de dúvidas, negociações ou pagamentos pendentes, o que sugere a finalização da compra.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Enviar comprovante de compra e instruções de entrega/retirada, caso aplicável",
+          "priority": "BAIXA",
+          "description": "Encaminhar os documentos necessários para a finalização da transação.",
+          "estimated_conversion_impact": "0.0"
+        }
+      ],
+      "urgency_level": {
+        "level": "BAIXA",
+        "score": 0.1,
+        "factors": [
+          "A conversa foi rápida e direta, sem atrasos ou hesitações por parte do cliente."
+        ]
+      },
+      "purchase_intent": {
+        "score": 0.98,
+        "barriers": [],
+        "indicators": [
+          "O cliente respondeu 'Ok' e 'Muito obrigada'.",
+          "Não há indicações de hesitação ou barreiras à compra."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [],
+        "conversion_probability": 1,
+        "estimated_ticket_value": "Não especificado",
+        "estimated_close_time_hours": "0"
+      },
+      "products_mentioned": [],
+      "sentiment_analysis": {
+        "customer_sentiment": "POSITIVO",
+        "satisfaction_score": 0.95,
+        "emotional_indicators": [
+          "'Muito obrigada'"
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 2,
+        "company_messages": 0,
+        "customer_messages": 2,
+        "response_time_avg_minutes": 0,
+        "last_interaction_hours_ago": 18.538510277777778
+      }
+    },
+    "created_at": "2025-07-23 14:48:42.292412+00",
+    "updated_at": "2025-07-23 14:48:42.292412+00"
+  },
+  {
+    "id": "d7ba8f68-ed6c-489e-bcc8-b13dd4b9c529",
+    "conversation_id": "1225db73-b444-456b-a86f-2df597436e9e",
+    "analysis_data": {
+      "alerts": [],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "A conversa demonstra um pós-venda. A cliente recebeu um vídeo de um anel (provavelmente adquirido anteriormente), expressou satisfação com o produto ('Gostei também', '🥹🥹🥹') e a empresa confirmou a felicidade da cliente ('Ficamos felizes Larissa❤️').  Não há indícios de negociação em andamento, apenas feedback positivo após uma compra concluída.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Monitorar a satisfação do cliente a longo prazo",
+          "priority": "Baixa",
+          "description": "Considerar envio de uma pesquisa de satisfação em um futuro próximo para avaliar a experiência completa do cliente.",
+          "estimated_conversion_impact": "Não aplicável"
+        }
+      ],
+      "urgency_level": {
+        "level": "Baixa",
+        "score": 0.1,
+        "factors": [
+          "A compra parece ter sido concluída antes do início da conversa atual; o foco aqui é no pós-venda e satisfação do cliente."
+        ]
+      },
+      "purchase_intent": {
+        "score": 1,
+        "barriers": [],
+        "indicators": [
+          "A cliente solicitou um vídeo de um anel, sugerindo uma compra anterior; expressões de satisfação demonstram compra bem sucedida."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [],
+        "conversion_probability": 1,
+        "estimated_ticket_value": "Desconhecido",
+        "estimated_close_time_hours": "Concluído"
+      },
+      "products_mentioned": [
+        {
+          "product": "Anel",
+          "variant": "Não especificado",
+          "interest_level": "Concluído"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo",
+        "satisfaction_score": 0.9,
+        "emotional_indicators": [
+          "🥹🥹🥹",
+          "Muito Obrigada",
+          "Gostei também"
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 13,
+        "company_messages": 4,
+        "customer_messages": 9,
+        "response_time_avg_minutes": 1.1396111111111111,
+        "last_interaction_hours_ago": 8.401465833333333
+      }
+    },
+    "created_at": "2025-07-22 20:11:33.178657+00",
+    "updated_at": "2025-07-23 20:43:56.218009+00"
+  },
+  {
+    "id": "62a11b6a-467d-4602-a921-3d4f88e93ebc",
+    "conversation_id": "ce1b7834-e270-4c5d-bb79-2c46e6bed5cd",
+    "analysis_data": {
+      "alerts": [],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "A conversa inicia com perguntas sobre o horário de funcionamento da loja, para que o marido da cliente possa vender ouro. A empresa confirma a presença do funcionário Reginaldo e, após um pequeno atraso, informa que ele está saindo da loja. A cliente então avisa que chegou, indicando que a transação (venda do ouro) foi realizada com sucesso.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Monitorar o desempenho do Reginaldo na venda e coletar feedback da cliente.",
+          "priority": "Média",
+          "description": "Envie uma pesquisa de satisfação para a cliente Cláudia para coletar feedback sobre a experiência da venda do ouro. Avalie o desempenho do Reginaldo considerando o tempo de resposta e eficiência na transação.",
+          "estimated_conversion_impact": "Alta - feedback positivo pode ser usado em futuras estratégias de vendas."
+        }
+      ],
+      "urgency_level": {
+        "level": "Alta",
+        "score": 0.9,
+        "factors": [
+          "A cliente demonstra urgência em saber sobre o horário de funcionamento e a presença do funcionário Reginaldo. A venda do ouro pelo marido ocorreu em um curto espaço de tempo após a confirmação da presença do funcionário."
+        ]
+      },
+      "purchase_intent": {
+        "score": 1,
+        "barriers": [],
+        "indicators": [
+          "A cliente informa que seu marido está indo vender ouro. A mensagem final indica que ela já chegou à loja para a conclusão da transação."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [],
+        "conversion_probability": 1,
+        "estimated_ticket_value": "Desconhecido. Necessita informação adicional sobre o valor do ouro.",
+        "estimated_close_time_hours": "0.5 (a venda já foi finalizada)"
+      },
+      "products_mentioned": [
+        {
+          "product": "Ouro",
+          "variant": "Não especificado",
+          "interest_level": "Alta"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo",
+        "satisfaction_score": 0.9,
+        "emotional_indicators": [
+          "Utilização de 'Obrigada' demonstra gratidão."
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 14,
+        "company_messages": 7,
+        "customer_messages": 7,
+        "response_time_avg_minutes": 5.972345833333334,
+        "last_interaction_hours_ago": 1.28507
+      }
+    },
+    "created_at": "2025-07-23 20:46:51.109615+00",
+    "updated_at": "2025-07-23 22:03:09.677447+00"
+  },
+  {
+    "id": "70bd7642-4a4f-4b79-bbaa-4981ac923192",
+    "conversation_id": "94245f7e-0134-4d4b-8aa3-d57f3ffec1e1",
+    "analysis_data": {
+      "alerts": [
+        {
+          "type": "Acompanhamento de produção",
+          "message": "Monitorar a produção da aliança e manter a cliente informada sobre o progresso.  Entregar fotos e informações de peso e dimensões assim que disponível.",
+          "severity": "Baixa",
+          "action_required": "Proativamente enviar atualizações sobre a produção da aliança para manter a cliente envolvida e reduzir a ansiedade em relação à data de entrega."
+        }
+      ],
+      "lead_status": {
+        "stage": "VENDA_FINALIZADA",
+        "reasoning": "A cliente confirmou o pedido da aliança (\"Perfeito!!! Muito obrigada 🙏\"; \"Perfeito! Muito obrigada\") e concordou com o envio pelos correios (\"No final vcs mandam pra mim pelo correio?\"; \"Quando ficar pronto me fala!\").  A empresa confirmou a data de envio e os próximos passos. A última mensagem da cliente demonstra entusiasmo e pedido de prioridade, mas não afeta o status de venda finalizada.",
+        "confidence": 0.95
+      },
+      "next_actions": [
+        {
+          "action": "Solicitar CEP para cálculo do frete",
+          "priority": "Alta",
+          "description": "Assim que a aliança estiver pronta, solicitar o CEP da cliente para calcular o valor do frete e informar o valor total. Depois disso, pedir a confirmação do endereço de entrega e os dados necessários para o envio.",
+          "estimated_conversion_impact": "Ação conclusiva para finalização da venda."
+        }
+      ],
+      "urgency_level": {
+        "level": "Média",
+        "score": 0.6,
+        "factors": [
+          "A cliente demonstra urgência em receber a aliança antes da data prevista, mas não é uma urgência crítica. A compra já foi confirmada."
+        ]
+      },
+      "purchase_intent": {
+        "score": 0.98,
+        "barriers": [
+          "Nenhum barreira aparente.  O envio depende da conclusão do processo de fabricação."
+        ],
+        "indicators": [
+          "Confirmação explícita do pedido (\"Perfeito!!! Muito obrigada 🙏\", \"Perfeito! Muito obrigada\"),  interesse em detalhes do produto (pergunta sobre peso) e confirmação do método de envio."
+        ]
+      },
+      "sales_prediction": {
+        "risk_factors": [
+          "Risco de atraso na produção da aliança, problemas com o envio dos correios."
+        ],
+        "conversion_probability": 0.99,
+        "estimated_ticket_value": "[Valor da aliança + frete]",
+        "estimated_close_time_hours": "48-72 horas (considerando o tempo de produção e envio)"
+      },
+      "products_mentioned": [
+        {
+          "product": "Aliança",
+          "variant": "Detalhes de peso e grama fornecidos pela empresa (1.55 gramas com perda de 0.16 gramas)",
+          "interest_level": "Alto"
+        }
+      ],
+      "sentiment_analysis": {
+        "customer_sentiment": "Positivo",
+        "satisfaction_score": 0.9,
+        "emotional_indicators": [
+          "🙏 (emoji de mãos juntas em oração), expressões como \"Perfeito\", \"Muito obrigada\", demonstração de entusiasmo."
+        ]
+      },
+      "conversation_metrics": {
+        "total_messages": 14,
+        "company_messages": 9,
+        "customer_messages": 5,
+        "response_time_avg_minutes": 3.879058333333333,
+        "last_interaction_hours_ago": 8.53517861111111
+      }
+    },
+    "created_at": "2025-07-23 20:44:49.852064+00",
+    "updated_at": "2025-07-23 22:01:43.95543+00"
+  }
+]

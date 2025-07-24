@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { MessageSquare, Smartphone, RefreshCw, AlertCircle, CheckCircle, Clock, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
@@ -214,7 +215,7 @@ export function ConnectWhatsApp({
         });
       }
     }, CONNECTION_TIMEOUT);
-  }, [status, addToast, clearAllTimers]);
+  }, [status, addToast, clearAllTimers, CONNECTION_TIMEOUT]);
 
   // Initiate WhatsApp connection
   const initiateConnection = useCallback(async () => {
@@ -284,7 +285,7 @@ export function ConnectWhatsApp({
       setStatus('error');
       setErrorMessage(error.message || 'Erro ao iniciar conexão');
     }
-  }, [agentId, agentType]);
+  }, [agentId, agentType, addToast, generateInstanceName, getAuthToken, startConnectionTimeout, startDurationTimer, startPolling]);
 
   // Handler para botão de iniciar conexão
   const handleInitiateConnection = useCallback(() => {
@@ -383,9 +384,11 @@ export function ConnectWhatsApp({
         <div className="mb-6">
           {qrCode ? (
             <div className="bg-white p-4 rounded-lg border-2 border-dashed border-gray-300">
-              <img
+              <Image
                 src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
                 alt="WhatsApp QR Code"
+                width={300}
+                height={300}
                 className="w-full h-auto max-w-xs mx-auto"
               />
             </div>
@@ -425,9 +428,11 @@ export function ConnectWhatsApp({
         )}
         {status === 'qrcode' && qrCode && (
           <div className="flex flex-col items-center space-y-4">
-            <img 
+            <Image 
               src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`} 
               alt="QR Code" 
+              width={256}
+              height={256}
               className="w-64 h-64" 
             />
             <Button onClick={handleGenerateNewQrCode} variant="outline">

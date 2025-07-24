@@ -136,7 +136,25 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { nome, cnpj, telefone, endereco, email, website, setor, descricao, ativo } = body;
+    const { nome, cnpj, telefone, endereco, email, website, setor, descricao, ativo, agent_type } = body;
+
+    // Buscar empresa existente para determinar o tipo de agente
+    const supabase = databaseService.getClient();
+    
+    const { data: empresaExistente, error: fetchError } = await supabase
+      .from('empresa')
+      .select('agent_type')
+      .eq('id', empresaId)
+      .single();
+
+    if (fetchError || !empresaExistente) {
+      return NextResponse.json(
+        { success: false, message: 'Empresa não encontrada' },
+        { status: 404 }
+      );
+    }
+
+    const currentAgentType = empresaExistente.agent_type || 'vendas';
 
     // Validação básica
     if (!nome || nome.trim().length < 2) {
@@ -146,23 +164,58 @@ export async function PUT(
       );
     }
 
-    const supabase = databaseService.getClient();
+    // Validação específica para Sentinela: telefone obrigatório e formato correto
+    if (currentAgentType === 'sentinela') {
+      if (!telefone || telefone.trim().length === 0) {
+        return NextResponse.json(
+          { success: false, message: 'Telefone é obrigatório para agente Sentinela' },
+          { status: 400 }
+        );
+      }
+      
+      const cleanPhone = telefone.replace(/\D/g, '');
+      if (cleanPhone.length !== 13 || !cleanPhone.startsWith('55')) {
+        return NextResponse.json(
+          { success: false, message: 'Telefone deve ter 13 dígitos no formato 5531996997292' },
+          { status: 400 }
+        );
+      }
+    }
 
-    // Atualizar empresa
-    const { data: empresa, error } = await supabase
-      .from('empresa')
-      .update({
-        nome: nome.trim(),
+    // Preparar dados de atualização baseados no tipo de agente
+    let updateData: any = {
+      nome: nome.trim(),
+      updated_at: new Date().toISOString()
+    };
+
+    if (currentAgentType === 'sentinela') {
+      // Para Sentinela: apenas campos específicos podem ser alterados
+      // CNPJ e número não podem ser alterados conforme solicitado
+      updateData = {
+        ...updateData,
+        telefone: telefone?.replace(/\D/g, '') || null, // Garantir formato limpo
+        descricao: descricao?.trim() || null,
+        ativo: ativo !== undefined ? ativo : true,
+      };
+    } else {
+      // Para Vendas: todos os campos podem ser alterados
+      updateData = {
+        ...updateData,
         cnpj: cnpj?.trim() || null,
-        telefone: telefone?.trim() || null,
+        telefone: telefone?.replace(/\D/g, '') || null, // Garantir formato limpo  
         endereco: endereco?.trim() || null,
         email: email?.trim() || null,
         website: website?.trim() || null,
         setor: setor?.trim() || null,
         descricao: descricao?.trim() || null,
         ativo: ativo !== undefined ? ativo : true,
-        updated_at: new Date().toISOString()
-      })
+      };
+    }
+
+    // Atualizar empresa
+    const { data: empresa, error } = await supabase
+      .from('empresa')
+      .update(updateData)
       .eq('id', empresaId)
       .select()
       .single();
@@ -226,16 +279,51 @@ export async function DELETE(
 
     const supabase = databaseService.getClient();
 
-    // Verificar se há dependências (agentes, clientes, etc.)
-    // Por enquanto, vamos permitir a exclusão direta
-    // TODO: Implementar verificação de dependências
+    // Deleção em cascade manual
+    // 1. Remover conversas relacionadas
+    const { error: conversationsError } = await supabase
+      .from('conversations')
+      .delete()
+      .eq('empresa_id', empresaId);
+    if (conversationsError) {
+      console.error('Erro ao remover conversas:', conversationsError);
+      return NextResponse.json(
+        { success: false, message: 'Erro ao remover conversas da empresa' },
+        { status: 500 }
+      );
+    }
 
-    // Remover associações usuario_empresa primeiro
+    // 2. Remover agentes relacionados
+    const { error: agentesError } = await supabase
+      .from('agente')
+      .delete()
+      .eq('empresa_id', empresaId);
+    if (agentesError) {
+      console.error('Erro ao remover agentes:', agentesError);
+      return NextResponse.json(
+        { success: false, message: 'Erro ao remover agentes da empresa' },
+        { status: 500 }
+      );
+    }
+
+    // 3. Remover clientes relacionados
+    const { error: clientesError } = await supabase
+      .from('cliente')
+      .delete()
+      .eq('empresa_id', empresaId);
+    if (clientesError) {
+      console.error('Erro ao remover clientes:', clientesError);
+      return NextResponse.json(
+        { success: false, message: 'Erro ao remover clientes da empresa' },
+        { status: 500 }
+      );
+    }
+
+    // 4. Remover associações usuario_empresa
     const { error: associacaoError } = await supabase
       .from('usuario_empresa')
       .delete()
       .eq('empresa_id', empresaId);
-
     if (associacaoError) {
       console.error('Erro ao remover associações:', associacaoError);
       return NextResponse.json(
@@ -244,12 +332,11 @@ export async function DELETE(
       );
     }
 
-    // Remover empresa
+    // 5. Remover empresa
     const { error: empresaError } = await supabase
       .from('empresa')
       .delete()
       .eq('id', empresaId);
-
     if (empresaError) {
       console.error('Erro ao excluir empresa:', empresaError);
       return NextResponse.json(
@@ -260,7 +347,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Empresa excluída com sucesso'
+      message: 'Empresa excluída com sucesso (cascade manual)'
     });
 
   } catch (error: any) {

@@ -9,20 +9,29 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Briefcase, ArrowRight } from 'lucide-react';
-import { empresaBasicSchema, EmpresaBasicFormData } from '@/lib/validations/empresa';
+import { empresaBasicSchema, empresaBasicSentinelaSchema, EmpresaBasicFormData, EmpresaBasicSentinelaFormData } from '@/lib/validations/empresa';
 import { SETORES_OPCOES } from '@/types/empresa';
 
 interface BasicInfoStepProps {
-  data: Partial<EmpresaBasicFormData>;
-  onNext: (data: EmpresaBasicFormData) => void;
+  data: Partial<EmpresaBasicFormData | EmpresaBasicSentinelaFormData>;
+  onNext: (data: EmpresaBasicFormData | EmpresaBasicSentinelaFormData) => void;
+  agentType?: 'sentinela' | 'vendas';
 }
 
-export function BasicInfoStep({ data, onNext }: BasicInfoStepProps) {
-  const form = useForm<EmpresaBasicFormData>({
-    resolver: zodResolver(empresaBasicSchema),
+export function BasicInfoStep({ data, onNext, agentType = 'vendas' }: BasicInfoStepProps) {
+  const isSentinela = agentType === 'sentinela';
+  const schema = isSentinela ? empresaBasicSentinelaSchema : empresaBasicSchema;
+  
+  type FormData = typeof isSentinela extends true ? EmpresaBasicSentinelaFormData : EmpresaBasicFormData;
+  
+  const form = useForm({
     defaultValues: {
       nome: data.nome || '',
-      cnpj: data.cnpj || '',
+      ...(isSentinela ? {
+        telefone: (data as any).telefone || '',
+      } : {
+        cnpj: (data as any).cnpj || '',
+      }),
       setor: data.setor || undefined,
       descricao: data.descricao || '',
     },
@@ -40,7 +49,14 @@ export function BasicInfoStep({ data, onNext }: BasicInfoStepProps) {
     e.target.value = formatted;
   };
 
-  const onSubmit = (formData: EmpresaBasicFormData) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 13) {
+      e.target.value = value;
+    }
+  };
+
+  const onSubmit = (formData: any) => {
     onNext(formData);
   };
 
@@ -83,25 +99,49 @@ export function BasicInfoStep({ data, onNext }: BasicInfoStepProps) {
             )}
           </div>
 
-          {/* CNPJ */}
-          <div className="space-y-2">
-            <Label htmlFor="cnpj" className="atlas-label">
-              CNPJ
-            </Label>
-            <Input
-              id="cnpj"
-              {...register('cnpj')}
-              type="text"
-              maxLength={18}
-              onChange={handleCNPJChange}
-              className="atlas-input"
-              placeholder="00.000.000/0000-00"
-              style={{ borderRadius: 'var(--radius-sm)' }}
-            />
-            {errors.cnpj && (
-              <p className="text-destructive text-xs">{errors.cnpj.message}</p>
-            )}
-          </div>
+          {/* CNPJ (apenas para Vendas) ou Telefone (apenas para Sentinela) */}
+          {!isSentinela ? (
+            <div className="space-y-2">
+              <Label htmlFor="cnpj" className="atlas-label">
+                CNPJ
+              </Label>
+              <Input
+                id="cnpj"
+                {...register('cnpj')}
+                type="text"
+                maxLength={18}
+                onChange={handleCNPJChange}
+                className="atlas-input"
+                placeholder="00.000.000/0000-00"
+                style={{ borderRadius: 'var(--radius-sm)' }}
+              />
+              {(errors as any).cnpj && (
+                <p className="text-destructive text-xs">{String((errors as any).cnpj?.message || (errors as any).cnpj || '')}</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="telefone" className="atlas-label">
+                Telefone *
+              </Label>
+              <Input
+                id="telefone"
+                {...register('telefone')}
+                type="text"
+                maxLength={13}
+                onChange={handlePhoneChange}
+                className="atlas-input"
+                placeholder="5531996997292"
+                style={{ borderRadius: 'var(--radius-sm)' }}
+              />
+              {(errors as any).telefone && (
+                <p className="text-destructive text-xs">{String((errors as any).telefone?.message || (errors as any).telefone || '')}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Formato: 13 dígitos sem pontuação (55 + DDD + número com 9)
+              </p>
+            </div>
+          )}
 
           {/* Setor */}
           <div className="space-y-2">

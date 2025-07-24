@@ -134,6 +134,7 @@ export class WhatsAppConnectionService implements IWhatsAppConnectionService {
         instanceName: instanceName, // vindo do frontend
         qrcode: true,
         integration: 'WHATSAPP-BAILEYS',
+        groupsIgnore: true,
         webhook: {
           url: webhookUrl, 
           base64: true,

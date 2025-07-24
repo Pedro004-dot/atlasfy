@@ -1,0 +1,231 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { ShieldX, ArrowRight, X, Plus, AlertTriangle } from 'lucide-react';
+import { blockedNumbersSchema, BlockedNumbersFormData } from '@/lib/validations/empresa';
+
+interface BlockedNumbersStepProps {
+  data: { blocked_numbers?: string[] };
+  onNext: (data: { blocked_numbers: string[] }) => void;
+  onBack: () => void;
+}
+
+export function BlockedNumbersStep({ data, onNext, onBack }: BlockedNumbersStepProps) {
+  const [currentNumber, setCurrentNumber] = useState('');
+  const [blockedNumbers, setBlockedNumbers] = useState<string[]>(data.blocked_numbers || []);
+  const [currentError, setCurrentError] = useState<string>('');
+
+  const form = useForm<{ blocked_numbers: string[] }>({
+    defaultValues: {
+      blocked_numbers: blockedNumbers,
+    },
+  });
+
+  const validatePhoneNumber = (number: string): string | null => {
+    if (!number) return 'Número é obrigatório';
+    if (!/^\d+$/.test(number)) return 'Apenas números são permitidos';
+    if (number.length !== 13) return 'Número deve ter exatamente 13 dígitos';
+    if (!number.startsWith('55')) return 'Número deve começar com código do país 55';
+    
+    const ddd = number.substring(2, 4);
+    const nineDigit = number.substring(4, 5);
+    
+    if (!/^[1-9][0-9]$/.test(ddd)) return 'DDD inválido (deve ser entre 11 e 99)';
+    if (nineDigit !== '9') return 'Número deve ter o 9 adicional após o DDD';
+    if (blockedNumbers.includes(number)) return 'Este número já foi adicionado';
+    
+    return null;
+  };
+
+  const formatPhoneDisplay = (number: string): string => {
+    if (number.length !== 13) return number;
+    return `+${number.substring(0, 2)} (${number.substring(2, 4)}) ${number.substring(4, 5)} ${number.substring(5, 9)}-${number.substring(9)}`;
+  };
+
+  const handleAddNumber = () => {
+    const cleanNumber = currentNumber.replace(/\D/g, '');
+    const error = validatePhoneNumber(cleanNumber);
+    
+    if (error) {
+      setCurrentError(error);
+      return;
+    }
+
+    const updatedNumbers = [...blockedNumbers, cleanNumber];
+    setBlockedNumbers(updatedNumbers);
+    setCurrentNumber('');
+    setCurrentError('');
+    form.setValue('blocked_numbers', updatedNumbers);
+  };
+
+  const handleRemoveNumber = (numberToRemove: string) => {
+    const updatedNumbers = blockedNumbers.filter(num => num !== numberToRemove);
+    setBlockedNumbers(updatedNumbers);
+    form.setValue('blocked_numbers', updatedNumbers);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddNumber();
+    }
+  };
+
+  const onSubmit = () => {
+    onNext({ blocked_numbers: blockedNumbers });
+  };
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      {/* Step Title */}
+      <div className="text-center">
+        <div className="w-12 h-12 bg-primary/10 flex items-center justify-center mx-auto mb-3" style={{ borderRadius: 'var(--radius)' }}>
+          <ShieldX className="h-6 w-6 text-primary" />
+        </div>
+        <h2 className="atlas-heading text-xl font-semibold text-foreground mb-1">
+          Números Bloqueados
+        </h2>
+        <p className="atlas-muted text-sm">
+          Configure números que o agente deve ignorar completamente
+        </p>
+      </div>
+
+      {/* Add Number Section */}
+      <div className="bg-muted p-6 space-y-4" style={{ borderRadius: 'var(--radius)' }}>
+        <div className="space-y-2">
+          <Label htmlFor="phone-number" className="atlas-label">
+            Adicionar Número para Bloqueio
+          </Label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
+                id="phone-number"
+                type="text"
+                value={currentNumber}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  if (value.length <= 13) {
+                    setCurrentNumber(value);
+                    setCurrentError('');
+                  }
+                }}
+                onKeyPress={handleKeyPress}
+                maxLength={13}
+                className="atlas-input"
+                placeholder="5531996997292"
+                style={{ borderRadius: 'var(--radius-sm)' }}
+              />
+              {currentError && (
+                <p className="text-destructive text-xs mt-1">{currentError}</p>
+              )}
+            </div>
+            <Button
+              type="button"
+              onClick={handleAddNumber}
+              disabled={!currentNumber}
+              className="atlas-button-secondary"
+              style={{ borderRadius: 'var(--radius-sm)' }}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Formato: 13 dígitos sem pontuação - Obrigatório código país 55, DDD e número com 9
+          </p>
+        </div>
+
+        {/* Format Example */}
+        <div className="bg-primary/5 border border-primary/20 p-3" style={{ borderRadius: 'var(--radius-sm)' }}>
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-primary">Exemplo de formato correto:</p>
+              <p className="text-xs text-primary/80 mt-1">
+                <span className="font-mono bg-primary/10 px-1 rounded">5531996997292</span>
+                <br />
+                55 (país) + 31 (DDD) + 9 + 96997292 (número)
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Blocked Numbers List */}
+      {blockedNumbers.length > 0 && (
+        <div className="bg-muted p-6" style={{ borderRadius: 'var(--radius)' }}>
+          <h3 className="atlas-heading font-medium text-foreground mb-3">
+            Números Bloqueados ({blockedNumbers.length})
+          </h3>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {blockedNumbers.map((number, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between bg-background p-3 border"
+                style={{ borderRadius: 'var(--radius-sm)' }}
+              >
+                <div className="flex items-center gap-3">
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {formatPhoneDisplay(number)}
+                  </Badge>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveNumber(number)}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Information Card */}
+      <div className="bg-blue-50 border border-blue-200 p-4" style={{ borderRadius: 'var(--radius)' }}>
+        <div className="flex items-start gap-3">
+          <div className="w-6 h-6 bg-blue-100 flex items-center justify-center flex-shrink-0" style={{ borderRadius: 'var(--radius-sm)' }}>
+            <ShieldX className="h-4 w-4 text-blue-600" />
+          </div>
+          <div>
+            <h4 className="atlas-heading font-medium text-blue-800 mb-1">Como funciona o bloqueio</h4>
+            <ul className="atlas-text text-sm text-blue-700 space-y-1">
+              <li>• O agente não responderá e nem monitorará conversas destes números</li>
+              <li>• A configuração pode ser alterada posteriormente</li>
+              <li>• Números bloqueados não contam nas estatísticas de atendimento</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-between pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          className="atlas-button-outline"
+          style={{ borderRadius: 'var(--radius)' }}
+        >
+          Voltar
+        </Button>
+        <Button
+          type="submit"
+          className="atlas-button-primary"
+          style={{ borderRadius: 'var(--radius)' }}
+        >
+          Continuar
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </div>
+    </form>
+  );
+}

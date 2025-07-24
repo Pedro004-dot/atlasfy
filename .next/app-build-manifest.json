@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/(dashboard)/dashboard/empresa/page": [
+    "/(dashboard)/dashboard/analise/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/dashboard/empresa/page.js"
+      "static/chunks/app/(dashboard)/dashboard/analise/page.js"
     ],
     "/(dashboard)/layout": [
       "static/chunks/webpack.js",
@@ -31,20 +31,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/(dashboard)/dashboard/clientes/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/dashboard/clientes/page.js"
-    ],
-    "/(dashboard)/dashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/dashboard/page.js"
-    ],
-    "/(dashboard)/dashboard/analise/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/dashboard/analise/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }
