@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -96,11 +96,6 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
       
       // Set blocked numbers
       const initialBlockedNumbers = Array.isArray(company.blocked_numbers) ? company.blocked_numbers : [];
-      console.log('[MODAL DEBUG] Carregando números bloqueados:', {
-        company_blocked_numbers: company.blocked_numbers,
-        initialBlockedNumbers,
-        isArray: Array.isArray(company.blocked_numbers)
-      });
       setBlockedNumbers(initialBlockedNumbers);
       setValue('blocked_numbers', initialBlockedNumbers);
 
@@ -118,10 +113,10 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
   }, [company, isOpen]);
 
   // Handler for blocked numbers changes
-  const handleBlockedNumbersChange = (numbers: string[]) => {
+  const handleBlockedNumbersChange = useCallback((numbers: string[]) => {
     setBlockedNumbers(numbers);
     setValue('blocked_numbers', numbers);
-  };
+  }, [setValue]);
 
   const onSubmit = async (data: any) => {
     if (!company) return;
