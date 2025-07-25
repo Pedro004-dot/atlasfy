@@ -3,7 +3,6 @@
   "middleware": {
     "/": {
       "files": [
-        "prerender-manifest.js",
         "server/edge-runtime-webpack.js",
         "server/src/middleware.js"
       ],
@@ -11,33 +10,13 @@
       "page": "/",
       "matchers": [
         {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/dashboard(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(.json)?[\\/#\\?]?$",
-          "originalSource": "/dashboard/:path*"
-        },
-        {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/login(.json)?[\\/#\\?]?$",
-          "originalSource": "/login"
-        },
-        {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/cadastro(.json)?[\\/#\\?]?$",
-          "originalSource": "/cadastro"
-        },
-        {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/confirmar-email(.json)?[\\/#\\?]?$",
-          "originalSource": "/confirmar-email"
-        },
-        {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/esqueci-senha(.json)?[\\/#\\?]?$",
-          "originalSource": "/esqueci-senha"
+          "regexp": "^/.*$",
+          "originalSource": "/:path*"
         }
       ],
       "wasm": [],
       "assets": [],
-      "environments": {
-        "previewModeId": "9b3f99fd56b1b4af7dfb72d5de585426",
-        "previewModeSigningKey": "d5049c51af8b4d30872d820a22fb94cd3d55c2391ad316979cb23be992ac2b19",
-        "previewModeEncryptionKey": "77e741aa3647d581737717fdd7d802f5af8d4e5936e3d2f6cef77c8d0f2c7727"
-      }
+      "environments": {}
     }
   },
   "functions": {},

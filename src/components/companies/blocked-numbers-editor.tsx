@@ -20,17 +20,13 @@ export function BlockedNumbersEditor({ initialNumbers = [], onChange, disabled =
 
   // Sync with parent when initialNumbers change
   useEffect(() => {
-    console.log('[BLOCKED EDITOR DEBUG] Sincronizando números:', {
-      initialNumbers,
-      currentBlockedNumbers: blockedNumbers
-    });
     setBlockedNumbers(initialNumbers);
   }, [initialNumbers]);
 
   // Notify parent when numbers change
   useEffect(() => {
     onChange(blockedNumbers);
-  }, [blockedNumbers, onChange]);
+  }, [blockedNumbers]); // Remove onChange das dependências
 
   const validatePhoneNumber = (number: string): string | null => {
     if (!number) return 'Número é obrigatório';
