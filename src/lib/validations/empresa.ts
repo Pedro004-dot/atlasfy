@@ -22,9 +22,9 @@ export const empresaBasicSentinelaSchema = z.object({
     .min(2, 'Nome deve ter pelo menos 2 caracteres')
     .max(100, 'Nome deve ter no máximo 100 caracteres'),
   telefone: z.string()
-    .regex(/^55\d{11}$/, 'Telefone deve ter 13 dígitos no formato 5531996997292')
+    .regex(/^55\d{10}$/, 'Telefone deve ter 12 dígitos no formato 553196997292 (sem o 9 adicional)')
     .refine((value) => value.startsWith('55'), 'Telefone deve começar com código do país 55')
-    .refine((value) => value.length === 13, 'Telefone deve ter exatamente 13 dígitos'),
+    .refine((value) => value.length === 12, 'Telefone deve ter exatamente 12 dígitos'),
   setor: z.enum(SETORES_OPCOES).optional(),
   descricao: z.string()
     .max(500, 'Descrição deve ter no máximo 500 caracteres')
@@ -36,9 +36,9 @@ export const empresaContactSchema = z.object({
   telefone: z.string()
     .refine((value) => {
       if (!value) return true; // Opcional
-      // Só aceita 11 dígitos numéricos
-      return /^\d{13}$/.test(value);
-    }, 'Digite o telefone com DDD e número, apenas números, ex: 31996997292')
+      // Só aceita 12 dígitos numéricos (sem o 9 adicional)
+      return /^\d{12}$/.test(value);
+    }, 'Digite o telefone com código do país, DDD e número, apenas números, ex: 553196997292 (sem o 9 adicional)')
     .optional(),
   email: z.string()
     .email('Email inválido')
@@ -161,9 +161,9 @@ export const whatsappConnectionSchema = z.object({
 // Blocked Numbers Schema
 export const blockedNumbersSchema = z.object({
   blocked_numbers: z.array(z.string()
-    .regex(/^55\d{11}$/, 'Número deve ter 13 dígitos no formato 5531996997292 (código país 55 + DDD + número com 9)')
+    .regex(/^55\d{10}$/, 'Número deve ter 12 dígitos no formato 553196997292 (código país 55 + DDD + número sem o 9 adicional)')
     .refine((value) => value.startsWith('55'), 'Número deve começar com código do país 55')
-    .refine((value) => value.length === 13, 'Número deve ter exatamente 13 dígitos')
+    .refine((value) => value.length === 12, 'Número deve ter exatamente 12 dígitos')
   ).default([])
 });
 

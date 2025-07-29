@@ -368,7 +368,8 @@ export class AsaasService implements IBankingService {
 
   private isValidPhone(phone: string): boolean {
     const cleaned = phone.replace(/\D/g, '');
-    return cleaned.length >= 10 && cleaned.length <= 11;
+    // Aceita 10 dígitos (DDD + 8 dígitos) ou 12 dígitos (55 + DDD + 8 dígitos)
+    return cleaned.length === 10 || cleaned.length === 12;
   }
 
   private isValidCep(cep: string): boolean {

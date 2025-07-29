@@ -37,8 +37,8 @@ export function ContactInfoStep({ data, onNext, onPrevious }: ContactInfoStepPro
     if (field === 'telefone') {
       // Remove tudo que não for número
       const cleaned = String(value).replace(/\D/g, '');
-      // Só permite até 11 dígitos
-      if (cleaned.length > 11) return;
+      // Só permite até 10 dígitos (DDD + número sem o 9 adicional)
+      if (cleaned.length > 10) return;
       form.setValue(field, cleaned);
       if (errors[field]) {
         form.setError(field, { message: '' });
@@ -90,11 +90,11 @@ export function ContactInfoStep({ data, onNext, onPrevious }: ContactInfoStepPro
               id="telefone"
               {...register('telefone')}
               type="text"
-              maxLength={11}
-              minLength={11}
+              maxLength={10}
+              minLength={10}
               onChange={handlePhoneChange}
               className="atlas-input"
-              placeholder="31999999999"
+              placeholder="3196997292"
               style={{ borderRadius: 'var(--radius-sm)' }}
             />
             {errors.telefone && (
@@ -175,9 +175,9 @@ export function ContactInfoStep({ data, onNext, onPrevious }: ContactInfoStepPro
             <p className="atlas-text text-sm text-primary/80">
               Esses dados ajudarão seus clientes a entrar em contato e darão mais credibilidade 
               ao seu agente de vendas. O telefone será salvo no formato internacional (55DDNÚMERO) 
-              para integração com WhatsApp.
+              para integração com WhatsApp (sem o 9 adicional).
               <br />
-              <span className="font-medium">Exemplo:</span> (31) 99999-9999 → 5531999999999
+              <span className="font-medium">Exemplo:</span> (31) 96997292 → 553196997292
               <br />
               Todos os campos são opcionais.
             </p>

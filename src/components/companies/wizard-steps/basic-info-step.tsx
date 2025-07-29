@@ -51,7 +51,7 @@ export function BasicInfoStep({ data, onNext, agentType = 'vendas' }: BasicInfoS
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 13) {
+    if (value.length <= 12) {
       e.target.value = value;
     }
   };
@@ -128,17 +128,17 @@ export function BasicInfoStep({ data, onNext, agentType = 'vendas' }: BasicInfoS
                 id="telefone"
                 {...register('telefone')}
                 type="text"
-                maxLength={13}
+                maxLength={12}
                 onChange={handlePhoneChange}
                 className="atlas-input"
-                placeholder="5531996997292"
+                placeholder="553196997292"
                 style={{ borderRadius: 'var(--radius-sm)' }}
               />
               {(errors as any).telefone && (
                 <p className="text-destructive text-xs">{String((errors as any).telefone?.message || (errors as any).telefone || '')}</p>
               )}
               <p className="text-xs text-muted-foreground">
-                Formato: 13 dígitos sem pontuação (55 + DDD + número com 9)
+                Formato: 12 dígitos sem pontuação (55 + DDD + número sem o 9 adicional)
               </p>
             </div>
           )}

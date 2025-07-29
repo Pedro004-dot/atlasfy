@@ -26,9 +26,9 @@ const createEmpresaEditSchema = (agentType: 'sentinela' | 'vendas') => {
       .optional(),
     ativo: z.boolean().optional(),
     blocked_numbers: z.array(z.string()
-      .regex(/^55\d{11}$/, 'Número deve ter 13 dígitos no formato 5531996997292')
+      .regex(/^55\d{10}$/, 'Número deve ter 12 dígitos no formato 553196997292 (sem o 9 adicional)')
       .refine((value) => value.startsWith('55'), 'Número deve começar com código do país 55')
-      .refine((value) => value.length === 13, 'Número deve ter exatamente 13 dígitos')
+      .refine((value) => value.length === 12, 'Número deve ter exatamente 12 dígitos')
     ).default([]),
   };
 
@@ -36,9 +36,9 @@ const createEmpresaEditSchema = (agentType: 'sentinela' | 'vendas') => {
     return z.object({
       ...baseSchema,
       telefone: z.string()
-        .regex(/^55\d{11}$/, 'Telefone deve ter 13 dígitos no formato 5531996997292')
+        .regex(/^55\d{10}$/, 'Telefone deve ter 12 dígitos no formato 553196997292 (sem o 9 adicional)')
         .refine((value) => value.startsWith('55'), 'Telefone deve começar com 55')
-        .refine((value) => value.length === 13, 'Telefone deve ter exatamente 13 dígitos'),
+        .refine((value) => value.length === 12, 'Telefone deve ter exatamente 12 dígitos'),
     });
   } else {
     return z.object({
@@ -47,7 +47,7 @@ const createEmpresaEditSchema = (agentType: 'sentinela' | 'vendas') => {
         .regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ deve estar no formato XX.XXX.XXX/XXXX-XX')
         .optional(),
       telefone: z.string()
-        .regex(/^55\d{11}$/, 'Telefone deve ter 13 dígitos no formato 5531996997292')
+        .regex(/^55\d{10}$/, 'Telefone deve ter 12 dígitos no formato 553196997292 (sem o 9 adicional)')
         .optional(),
       email: z.string()
         .email('Email inválido')
@@ -186,15 +186,15 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
 
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, '');
-    if (digits.length === 13 && digits.startsWith('55')) {
-      return `+${digits.substring(0, 2)} (${digits.substring(2, 4)}) ${digits.substring(4, 5)} ${digits.substring(5, 9)}-${digits.substring(9)}`;
+    if (digits.length === 12 && digits.startsWith('55')) {
+      return `+${digits.substring(0, 2)} (${digits.substring(2, 4)}) ${digits.substring(4, 8)}-${digits.substring(8)}`;
     }
     return digits;
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 13) {
+    if (value.length <= 12) {
       e.target.value = value;
     }
   };
@@ -263,17 +263,17 @@ export function EditCompanyModal({ isOpen, onClose, onCompanyUpdated, company }:
                     id="telefone"
                     {...register('telefone')}
                     type="text"
-                    maxLength={13}
+                    maxLength={12}
                     onChange={handlePhoneChange}
                     className="atlas-input"
-                    placeholder="5531996997292"
+                    placeholder="553196997292"
                     style={{ borderRadius: 'var(--radius-sm)' }}
                   />
                   {errors.telefone && (
                     <p className="text-destructive text-xs">{String(errors.telefone.message || errors.telefone)}</p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Formato: 13 dígitos sem pontuação (55 + DDD + número com 9)
+                    Formato: 12 dígitos sem pontuação (55 + DDD + número sem o 9 adicional)
                   </p>
                 </div>
 

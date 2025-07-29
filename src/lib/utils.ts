@@ -55,22 +55,25 @@ export function formatPhoneDisplay(value: string): string {
   return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
 }
 
-// Converter telefone para formato internacional: 55DDNÚMERO
+// Converter telefone para formato internacional: 55DDNÚMERO (sem o 9 adicional)
 export function formatPhoneForDatabase(value: string): string {
   const digits = value.replace(/\D/g, '');
   
-  // Se já tem código do país (55), retorna como está
-  if (digits.startsWith('55') && digits.length === 13) {
+  // Se já tem código do país (55), retorna como está (12 dígitos)
+  if (digits.startsWith('55') && digits.length === 12) {
     return digits;
   }
   
-  // Se não tem código do país, adiciona 55
-  if (digits.length === 11) {
+  // Se não tem código do país, adiciona 55 (10 dígitos locais)
+  if (digits.length === 10) {
     return `55${digits}`;
   }
   
-  if (digits.length === 10) {
-    return `55${digits}`;
+  // Se tem 11 dígitos (com o 9 adicional), remove o 9 e adiciona 55
+  if (digits.length === 11 && digits.substring(2, 3) === '9') {
+    const ddd = digits.substring(0, 2);
+    const number = digits.substring(3);
+    return `55${ddd}${number}`;
   }
   
   return digits;
@@ -81,8 +84,8 @@ export function formatPhoneFromDatabase(value: string): string {
   if (!value) return '';
   const digits = value.replace(/\D/g, '');
   
-  // Se tem código do país (55), remove para exibição
-  if (digits.startsWith('55') && digits.length === 13) {
+  // Se tem código do país (55), remove para exibição (12 dígitos)
+  if (digits.startsWith('55') && digits.length === 12) {
     const withoutCountryCode = digits.substring(2);
     return formatPhoneDisplay(withoutCountryCode);
   }

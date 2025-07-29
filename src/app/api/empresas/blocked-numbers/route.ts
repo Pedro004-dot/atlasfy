@@ -31,14 +31,17 @@ async function validateToken(request: NextRequest): Promise<{ success: boolean; 
 function validatePhoneNumber(number: string): string | null {
   if (!number) return 'Número é obrigatório';
   if (!/^\d+$/.test(number)) return 'Apenas números são permitidos';
-  if (number.length !== 13) return 'Número deve ter exatamente 13 dígitos';
+  if (number.length !== 12) return 'Número deve ter exatamente 12 dígitos (formato: 553196997292 - sem o 9 adicional)';
   if (!number.startsWith('55')) return 'Número deve começar com código do país 55';
   
   const ddd = number.substring(2, 4);
-  const nineDigit = number.substring(4, 5);
   
   if (!/^[1-9][0-9]$/.test(ddd)) return 'DDD inválido (deve ser entre 11 e 99)';
-  if (nineDigit !== '9') return 'Número deve ter o 9 adicional após o DDD';
+  
+  // Verificar se o número tem 8 dígitos após o DDD (sem o 9 adicional)
+  const phoneNumber = number.substring(4);
+  if (phoneNumber.length !== 8) return 'Número deve ter 8 dígitos após o DDD (sem o 9 adicional)';
+  if (!/^\d{8}$/.test(phoneNumber)) return 'Número deve conter apenas dígitos';
   
   return null;
 }

@@ -132,7 +132,7 @@ export const empresaFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   telefone: z.string()
-    .regex(/^\d{11,13}$/, 'Telefone deve conter apenas números e ter 10 ou 11 dígitos')
+    .regex(/^\d{10,12}$/, 'Telefone deve conter apenas números e ter 10 ou 12 dígitos (formato: 553196997292 - sem o 9 adicional)')
     .optional()
     .or(z.literal('')),
   endereco: z.string().max(500, 'Endereço deve ter no máximo 500 caracteres').optional().or(z.literal('')),
@@ -140,7 +140,7 @@ export const empresaFormSchema = z.object({
   nome_atendente: z.string().max(100, 'Nome do atendente deve ter no máximo 100 caracteres').optional().or(z.literal('')),
   genero_atendente: z.enum(['masculino', 'feminino']).optional(),
   numeroSuporte: z.string()
-    .regex(/^\d{10,11}$/, 'Número de suporte deve conter apenas números e ter 10 ou 11 dígitos')
+    .regex(/^\d{10,12}$/, 'Número de suporte deve conter apenas números e ter 10 ou 12 dígitos (formato: 553196997292 - sem o 9 adicional)')
     .optional()
     .or(z.literal('')),
   descricao: z.string().max(1000, 'Descrição deve ter no máximo 1000 caracteres').optional().or(z.literal('')),
@@ -191,7 +191,7 @@ export const userProfileSchema = z.object({
   }),
   
   telefone: z.string()
-    .regex(/^\d{11,13}$/, 'Telefone deve conter apenas números e ter 10 ou 11 dígitos')
+    .regex(/^\d{10,12}$/, 'Telefone deve conter apenas números e ter 10 ou 12 dígitos (formato: 553196997292 - sem o 9 adicional)')
     .optional()
     .or(z.literal('')),
   
@@ -231,7 +231,7 @@ export const bankingAccountSchema = z.object({
     .max(255, 'Email deve ter no máximo 255 caracteres'),
   
   phone: z.string()
-    .regex(/^\d{10,11}$/, 'Telefone deve ter 10 ou 11 dígitos'),
+    .regex(/^\d{10,12}$/, 'Telefone deve ter 10 ou 12 dígitos (formato: 553196997292 - sem o 9 adicional)'),
   
   cpfCnpj: z.string()
     .regex(/^\d{11}$|^\d{14}$/, 'CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos'),
@@ -260,7 +260,7 @@ export const bankingAccountSchema = z.object({
     .regex(/^\d{8}$/, 'CEP deve ter 8 dígitos'),
   
   mobilePhone: z.string()
-    .regex(/^\d{10,11}$/, 'Celular deve ter 10 ou 11 dígitos')
+    .regex(/^\d{10,12}$/, 'Celular deve ter 10 ou 12 dígitos (formato: 553196997292 - sem o 9 adicional)')
     .optional(),
   
   personType: z.enum(['FISICA', 'JURIDICA']),
