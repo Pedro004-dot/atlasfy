@@ -1,13 +1,8 @@
 {
-  "/page": "app/page.js",
   "/login/page": "app/login/page.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/api/auth/completar-perfil/route": "app/api/auth/completar-perfil/route.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/dashboard/overview/route": "app/api/dashboard/overview/route.js",
-  "/api/empresas/usuario/route": "app/api/empresas/usuario/route.js",
-  "/api/empresas/route": "app/api/empresas/route.js",
-  "/api/empresas/[id]/route": "app/api/empresas/[id]/route.js",
+  "/api/user-connection-status/[instanceName]/route": "app/api/user-connection-status/[instanceName]/route.js",
+  "/api/empresas/create-complete/route": "app/api/empresas/create-complete/route.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/dashboard/empresa/page": "app/(dashboard)/dashboard/empresa/page.js"
+  "/(dashboard)/dashboard/empresa/page": "app/(dashboard)/dashboard/empresa/page.js",
+  "/(dashboard)/dashboard/clientes/page": "app/(dashboard)/dashboard/clientes/page.js"
 }

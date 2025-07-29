@@ -30,22 +30,23 @@ export function BlockedNumbersStep({ data, onNext, onBack }: BlockedNumbersStepP
   const validatePhoneNumber = (number: string): string | null => {
     if (!number) return 'Número é obrigatório';
     if (!/^\d+$/.test(number)) return 'Apenas números são permitidos';
-    if (number.length !== 13) return 'Número deve ter exatamente 13 dígitos';
+    if (number.length !== 12) return 'Número deve ter exatamente 12 dígitos (sem o 9 adicional)';
     if (!number.startsWith('55')) return 'Número deve começar com código do país 55';
     
     const ddd = number.substring(2, 4);
-    const nineDigit = number.substring(4, 5);
+    const phoneNumber = number.substring(4);
     
     if (!/^[1-9][0-9]$/.test(ddd)) return 'DDD inválido (deve ser entre 11 e 99)';
-    if (nineDigit !== '9') return 'Número deve ter o 9 adicional após o DDD';
+    if (phoneNumber.length !== 8) return 'Número deve ter 8 dígitos após o DDD (sem o 9 adicional)';
+    if (!/^\d{8}$/.test(phoneNumber)) return 'Número deve conter apenas dígitos';
     if (blockedNumbers.includes(number)) return 'Este número já foi adicionado';
     
     return null;
   };
 
   const formatPhoneDisplay = (number: string): string => {
-    if (number.length !== 13) return number;
-    return `+${number.substring(0, 2)} (${number.substring(2, 4)}) ${number.substring(4, 5)} ${number.substring(5, 9)}-${number.substring(9)}`;
+    if (number.length !== 12) return number;
+    return `+${number.substring(0, 2)} (${number.substring(2, 4)}) ${number.substring(4, 8)}-${number.substring(8)}`;
   };
 
   const handleAddNumber = () => {
@@ -110,15 +111,15 @@ export function BlockedNumbersStep({ data, onNext, onBack }: BlockedNumbersStepP
                 value={currentNumber}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 13) {
+                  if (value.length <= 12) {
                     setCurrentNumber(value);
                     setCurrentError('');
                   }
                 }}
                 onKeyPress={handleKeyPress}
-                maxLength={13}
+                maxLength={12}
                 className="atlas-input"
-                placeholder="5531996997292"
+                placeholder="553196997292"
                 style={{ borderRadius: 'var(--radius-sm)' }}
               />
               {currentError && (
@@ -136,7 +137,7 @@ export function BlockedNumbersStep({ data, onNext, onBack }: BlockedNumbersStepP
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Formato: 13 dígitos sem pontuação - Obrigatório código país 55, DDD e número com 9
+            Formato: 12 dígitos sem pontuação - Obrigatório código país 55, DDD e número sem o 9 adicional
           </p>
         </div>
 
@@ -147,9 +148,9 @@ export function BlockedNumbersStep({ data, onNext, onBack }: BlockedNumbersStepP
             <div>
               <p className="text-sm font-medium text-primary">Exemplo de formato correto:</p>
               <p className="text-xs text-primary/80 mt-1">
-                <span className="font-mono bg-primary/10 px-1 rounded">5531996997292</span>
+                <span className="font-mono bg-primary/10 px-1 rounded">553196997292</span>
                 <br />
-                55 (país) + 31 (DDD) + 9 + 96997292 (número)
+                55 (país) + 31 (DDD) + 96997292 (número sem o 9 adicional)
               </p>
             </div>
           </div>

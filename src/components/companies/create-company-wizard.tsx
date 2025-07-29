@@ -219,14 +219,14 @@ export function CreateCompanyWizard({
       if (selectedAgentType === AgentType.VENDAS && formData.telefone) {
         // Adicionar prefixo 55 ao telefone se necessário
         let telefoneFinal = formData.telefone;
-        if (telefoneFinal.length === 11 && !telefoneFinal.startsWith('55')) {
+        if (telefoneFinal.length === 10 && !telefoneFinal.startsWith('55')) {
           telefoneFinal = '55' + telefoneFinal;
         }
-        // Garante que só envie se tiver 13 dígitos
-        if (telefoneFinal.length !== 13) {
+        // Garante que só envie se tiver 12 dígitos (sem o 9 adicional)
+        if (telefoneFinal.length !== 12) {
           addToast({
             type: 'error',
-            message: 'O telefone deve conter DDD + 9 dígitos e o código do país (ex: 5531999999999)',
+            message: 'O telefone deve conter DDD + 8 dígitos e o código do país (ex: 553196997292 - sem o 9 adicional)',
           });
           setIsSubmitting(false);
           return;
