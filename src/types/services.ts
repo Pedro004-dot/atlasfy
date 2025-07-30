@@ -31,7 +31,7 @@ export interface IAuthService {
   verifyEmail(data: EmailVerificationData): Promise<AuthResult>;
   requestPasswordReset(email: string): Promise<{ success: boolean; message: string }>;
   resetPassword(data: PasswordResetData): Promise<AuthResult>;
-  generateJWT(userId: string, email: string): Promise<string>;
+  generateJWT(userId: string, email: string, nome: string, plano_id?: string | null): Promise<string>;
   verifyJWT(token: string): Promise<{ valid: boolean; payload?: any }>;
   hashPassword(password: string): Promise<string>;
   comparePassword(password: string, hash: string): Promise<boolean>;

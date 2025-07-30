@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     
     // Teste 3: Gerar JWT
     console.log('4. Gerando JWT...');
-    const token = await authService.generateJWT(user.id, user.email, user.plano_id || '');
+    const token = await authService.generateJWT(user.id, user.email, user.nome, user.plano_id || '');
     console.log('JWT gerado com sucesso');
     
     // Teste 4: Atualizar último acesso

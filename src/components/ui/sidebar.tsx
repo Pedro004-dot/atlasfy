@@ -54,6 +54,9 @@ export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
 
+  // Debug: verificar se o componente está renderizando
+  console.log('Sidebar render - isCollapsed:', isCollapsed);
+
   const handleLogout = async () => {
     try {
       // Chama API de logout para limpar cookies do servidor
@@ -83,9 +86,35 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-sidebar-border">
         {!isCollapsed && (
-          <h1 className="atlas-heading text-xl font-bold text-sidebar-foreground">Atlas</h1>
+          <div className="flex flex-col items-start min-w-0">
+            <h1 
+              className="text-3xl font-bold leading-tight"
+            style={{
+              fontFamily: 'Montserrat, Inter, sans-serif',
+              display: 'block',
+              width: 'fit-content',
+              background: 'linear-gradient(135deg, #ff3333 0%, #ffffff 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundSize: '200% 200%',
+              animation: 'gradient-shift 3s ease-in-out infinite'
+            }}
+          >
+            Atlas
+          </h1>
+          <p 
+            className="text-xs font-medium opacity-80 leading-tight"
+            style={{
+              fontFamily: 'Montserrat, Inter, sans-serif',
+              color: 'hsl(var(--sidebar-foreground))'
+            }}
+          >
+            Bora vender!
+          </p>
+          </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {!isCollapsed && <ThemeToggle />}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}

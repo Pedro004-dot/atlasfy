@@ -30,6 +30,7 @@ export default function EmpresaPage() {
   const podeCriar = user ? canCreateEmpresa(user.plano_id, companies.length) : false;
   const podeIniciarCriacao = podeCriar && isProfileComplete;
 
+  console.log(`user nome: ${user?.nome}`);
  console.log(`empresas atuais: ${companies.length}`);
  console.log(`plano_id do usuário: ${user?.plano_id}`);
  console.log(`pode criar: ${podeCriar}`);

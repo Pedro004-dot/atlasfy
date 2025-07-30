@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ClienteAnalysisModal } from '@/components/cliente-analysis-modal';
-import { AlertTriangle, TrendingUp, MessageSquare, Clock, DollarSign, Users, Target, AlertCircle, Info, CheckCircle2, XCircle } from 'lucide-react';
+import { AlertTriangle, TrendingUp, MessageSquare, Clock, DollarSign, Users, Target, AlertCircle, Info, CheckCircle2, XCircle, UserX, PhoneCall } from 'lucide-react';
 
 const timeFilters = [
   { label: '6h', value: '6h' },
@@ -79,6 +79,18 @@ const stageConfig = {
     color: 'bg-red-50 dark:bg-red-900/30',
     borderColor: 'border-red-200 dark:border-red-700'
   },
+  LEAD_PERDIDO: {
+    title: 'Leads Perdidos',
+    icon: UserX,
+    color: 'bg-red-50 dark:bg-red-950/30',
+    borderColor: 'border-red-200 dark:border-red-700'
+  },
+  FOLLOW_UP: {
+    title: 'Follow-up',
+    icon: PhoneCall,
+    color: 'bg-purple-50 dark:bg-purple-950/30',
+    borderColor: 'border-purple-200 dark:border-purple-700'
+  },
   OUTROS: { 
     title: 'Outros', 
     icon: Users, 
@@ -145,6 +157,23 @@ interface ConversationAnalysis {
       customer_messages: number;
       response_time_avg_minutes: number;
       last_interaction_hours_ago: number | null;
+    };
+    conversion_analysis?: {
+      status: string;
+      lost_reason?: string;
+      lost_category?: string;
+      lost_description?: string;
+      lost_stage?: string;
+      lost_date?: string;
+      recovery_potential?: string;
+    };
+    follow_up_analysis?: {
+      needs_follow_up: boolean;
+      follow_up_priority?: string;
+      last_interaction_type?: string;
+      follow_up_approach?: string;
+      interest_signals?: string[];
+      optimal_follow_up_message?: string;
     };
   };
 }
@@ -214,7 +243,56 @@ export default function AnalisePage() {
     }
   }, [empresaSelecionada, period]);
 
-  // Organizar conversas por estágio
+  // Função para normalizar dados do backend (ADAPTER PATTERN)
+  const normalizeConversation = (conv: any): ConversationAnalysis => {
+    return {
+      ...conv,
+      analysis_data: {
+        ...conv.analysis_data,
+        conversation_metrics: {
+          total_messages: conv.analysis_data?.conversation_metrics?.total_messages || 0,
+          company_messages: conv.analysis_data?.conversation_metrics?.company_messages || 0,
+          customer_messages: conv.analysis_data?.conversation_metrics?.customer_messages || 0,
+          response_time_avg_minutes: conv.analysis_data?.conversation_metrics?.response_time_avg_minutes || 0,
+          last_interaction_hours_ago: conv.analysis_data?.conversation_metrics?.last_interaction_hours_ago || null,
+        },
+        alerts: conv.analysis_data?.alerts || [],
+        lead_status: conv.analysis_data?.lead_status || { stage: 'OUTROS', reasoning: '', confidence: 0 },
+        purchase_intent: conv.analysis_data?.purchase_intent || { score: 0, barriers: [], indicators: [] },
+        sales_prediction: conv.analysis_data?.sales_prediction || { 
+          conversion_probability: 0, 
+          estimated_ticket_value: 0, 
+          estimated_close_time_hours: 0 
+        },
+        products_mentioned: conv.analysis_data?.products_mentioned || [],
+        sentiment_analysis: conv.analysis_data?.sentiment_analysis || { 
+          customer_sentiment: 'neutro', 
+          satisfaction_score: 0 
+        }
+      }
+    };
+  };
+
+  // Função para determinar estágio (STRATEGY PATTERN)
+  const getConversationStage = (conv: ConversationAnalysis): string => {
+    const normalizedConv = normalizeConversation(conv);
+    const stage = normalizedConv.analysis_data?.lead_status?.stage;
+    
+    // Verificar se é lead perdido baseado em conversion_analysis
+    if (normalizedConv.analysis_data?.conversion_analysis?.status === 'lost') {
+      return 'LEAD_PERDIDO';
+    }
+    
+    // Verificar se é follow-up baseado em follow_up_analysis
+    if (normalizedConv.analysis_data?.follow_up_analysis?.needs_follow_up) {
+      return 'FOLLOW_UP';
+    }
+    
+    // Usar stage padrão ou OUTROS
+    return (stage && stageConfig[stage as keyof typeof stageConfig]) ? stage : 'OUTROS';
+  };
+
+  // Organizar conversas por estágio (REFATORADO)
   const conversationsByStage = React.useMemo(() => {
     const stages: Record<string, ConversationAnalysis[]> = {};
     
@@ -223,16 +301,18 @@ export default function AnalisePage() {
       stages[stage] = [];
     });
     
-    // Distribuir as conversas pelos estágios
+    // Distribuir as conversas pelos estágios usando strategy
     conversations.forEach(conv => {
-      console.log('[AnalisePage] conv:', conv);
-      const stage = conv.analysis_data?.lead_status?.stage;
+      const normalizedConv = normalizeConversation(conv);
+      const stage = getConversationStage(normalizedConv);
       
-      if (stage && stages[stage]) {
-        stages[stage].push(conv);
+      console.log(`[AnalisePage] Conversa ${conv.conversation_id} -> Estágio: ${stage}`);
+      
+      if (stages[stage]) {
+        stages[stage].push(normalizedConv);
       } else {
-        // Se não tem stage ou stage não reconhecido, vai para OUTROS
-        stages['OUTROS'].push(conv);
+        console.warn(`[AnalisePage] Estágio não reconhecido: ${stage}`);
+        stages['OUTROS'].push(normalizedConv);
       }
     });
     
@@ -325,6 +405,163 @@ export default function AnalisePage() {
     if (hoursAgo < 1) return `${Math.round(hoursAgo * 60)}m`;
     if (hoursAgo < 24) return `${Math.round(hoursAgo)}h`;
     return `${Math.round(hoursAgo / 24)}d`;
+  };
+
+  const parseChurnDescription = (description: string) => {
+    if (!description) return { title: 'Motivo não especificado', details: '' };
+    
+    const parts = description.split(': ');
+    if (parts.length >= 2) {
+      return {
+        title: parts[0],
+        details: parts.slice(1).join(': ')
+      };
+    }
+    
+    return {
+      title: description.length > 30 ? description.substring(0, 30) + '...' : description,
+      details: description
+    };
+  };
+
+  // FACTORY PATTERN: Renderizadores de Card por Tipo
+  const renderCardContent = (conv: ConversationAnalysis) => {
+    const stage = conv.analysis_data?.lead_status?.stage;
+    
+    // LEAD_PERDIDO Card
+    if (stage === 'LEAD_PERDIDO' && conv.analysis_data?.conversion_analysis?.lost_description) {
+      return (
+        <>
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md p-3">
+            <div className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Motivo da Desistência:</div>
+            <div className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">
+              {parseChurnDescription(conv.analysis_data.conversion_analysis.lost_description).title}
+            </div>
+            <div className="text-xs text-red-700 dark:text-red-300 line-clamp-2">
+              {parseChurnDescription(conv.analysis_data.conversion_analysis.lost_description).details}
+            </div>
+            {conv.analysis_data?.products_mentioned?.[0] && (
+              <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                Produto: {conv.analysis_data.products_mentioned[0].product}
+                {conv.analysis_data.products_mentioned[0].variant && ` - ${conv.analysis_data.products_mentioned[0].variant}`}
+              </div>
+            )}
+            {conv.analysis_data.conversion_analysis.recovery_potential && (
+              <div className="mt-2">
+                <Badge 
+                  variant={conv.analysis_data.conversion_analysis.recovery_potential === 'high' ? 'default' : 
+                          conv.analysis_data.conversion_analysis.recovery_potential === 'medium' ? 'secondary' : 'outline'}
+                  className="text-xs"
+                >
+                  Potencial: {conv.analysis_data.conversion_analysis.recovery_potential === 'high' ? 'Alto' : 
+                             conv.analysis_data.conversion_analysis.recovery_potential === 'medium' ? 'Médio' : 'Baixo'}
+                </Badge>
+              </div>
+            )}
+          </div>
+        </>
+      );
+    }
+    
+    // FOLLOW_UP Card
+    if (stage === 'FOLLOW_UP' && conv.analysis_data?.follow_up_analysis) {
+      return (
+        <>
+          <div className="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-md p-3">
+            <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Follow-up Necessário:</div>
+            <div className="text-sm text-purple-800 dark:text-purple-200 mb-2">
+              Última interação: {conv.analysis_data.follow_up_analysis.last_interaction_type || 'N/A'}
+            </div>
+            {conv.analysis_data?.products_mentioned?.[0] && (
+              <div className="text-xs text-purple-600 dark:text-purple-400 mb-2">
+                Produto: {conv.analysis_data.products_mentioned[0].product}
+                {conv.analysis_data.products_mentioned[0].variant && ` - ${conv.analysis_data.products_mentioned[0].variant}`}
+              </div>
+            )}
+            {conv.analysis_data.follow_up_analysis.follow_up_priority && (
+              <Badge 
+                variant={conv.analysis_data.follow_up_analysis.follow_up_priority === 'high' ? 'default' : 
+                        conv.analysis_data.follow_up_analysis.follow_up_priority === 'medium' ? 'secondary' : 'outline'}
+                className="text-xs"
+              >
+                Prioridade: {conv.analysis_data.follow_up_analysis.follow_up_priority === 'high' ? 'Alta' : 
+                             conv.analysis_data.follow_up_analysis.follow_up_priority === 'medium' ? 'Média' : 'Baixa'}
+              </Badge>
+            )}
+          </div>
+        </>
+      );
+    }
+    
+    // DEFAULT Card (outras colunas)
+    return (
+      <>
+        {conv.analysis_data?.products_mentioned?.[0] && (
+          <div className="bg-muted/30 rounded-md p-2">
+            <div className="text-xs font-medium text-muted-foreground mb-1">Produto:</div>
+            <div className="text-sm font-medium text-foreground line-clamp-2">
+              {conv.analysis_data.products_mentioned[0].product}
+              {conv.analysis_data.products_mentioned[0].variant && 
+                ` - ${conv.analysis_data.products_mentioned[0].variant}`
+              }
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
+  // FACTORY PATTERN: Métricas por Tipo
+  const renderCardMetrics = (conv: ConversationAnalysis) => {
+    const stage = conv.analysis_data?.lead_status?.stage;
+    
+    // Métricas para LEAD_PERDIDO
+    if (stage === 'LEAD_PERDIDO') {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          <div className="text-center bg-red-50 dark:bg-red-950/30 rounded-md p-2">
+            <div className="text-xs text-muted-foreground mb-1">Valor Perdido</div>
+            <div className="text-sm font-bold text-red-600 dark:text-red-400">
+              {formatCurrency(conv.analysis_data?.sales_prediction?.estimated_ticket_value)}
+            </div>
+          </div>
+          <div className="text-center bg-orange-50 dark:bg-orange-950/30 rounded-md p-2">
+            <div className="text-xs text-muted-foreground mb-1">Estágio Perdido</div>
+            <div className="text-sm font-bold text-orange-600 dark:text-orange-400">
+              {conv.analysis_data?.conversion_analysis?.lost_stage === 'interesse' ? 'Interesse' :
+               conv.analysis_data?.conversion_analysis?.lost_stage === 'negociacao' ? 'Negociação' :
+               conv.analysis_data?.conversion_analysis?.lost_stage === 'pagamento' ? 'Pagamento' : 'N/A'}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // Métricas padrão para outras colunas
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        <div className="text-center bg-primary/5 rounded-md p-2">
+          <div className="text-xs text-muted-foreground mb-1">Valor Est.</div>
+          <div className="text-sm font-bold text-primary">
+            {formatCurrency(conv.analysis_data?.sales_prediction?.estimated_ticket_value)}
+          </div>
+        </div>
+        <div className="text-center bg-green-50 dark:bg-green-950/30 rounded-md p-2">
+          <div className="text-xs text-muted-foreground mb-1">
+            {stage === 'FOLLOW_UP' ? 'Follow-up' : 'Conversão'}
+          </div>
+          <div className="text-sm font-bold text-green-600 dark:text-green-400">
+            {stage === 'FOLLOW_UP' 
+              ? (conv.analysis_data?.follow_up_analysis?.follow_up_priority === 'high' ? 'Alta' : 
+                 conv.analysis_data?.follow_up_analysis?.follow_up_priority === 'medium' ? 'Média' : 'Baixa')
+              : (typeof conv.analysis_data?.purchase_intent?.score === 'number' 
+                 ? `${Math.round(conv.analysis_data.purchase_intent.score * 100)}%`
+                 : '--')
+            }
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -499,7 +736,13 @@ export default function AnalisePage() {
                           stageConversations.map((conv) => (
                             <Card 
                               key={conv.conversation_id}
-                              className="p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border border-border hover:border-primary/20"
+                              className={`p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border ${
+                                conv.analysis_data?.lead_status?.stage === 'LEAD_PERDIDO' 
+                                  ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700'
+                                  : conv.analysis_data?.lead_status?.stage === 'FOLLOW_UP'
+                                  ? 'border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700'
+                                  : 'border-border hover:border-primary/20'
+                              }`}
                               onClick={() => handleCardClick(conv)}
                               style={{ cursor: 'pointer' }}
                             >
@@ -521,37 +764,11 @@ export default function AnalisePage() {
                                   )}
                                 </div>
 
-                                {/* Produto Principal */}
-                                {conv.analysis_data?.products_mentioned?.[0] && (
-                                  <div className="bg-muted/30 rounded-md p-2">
-                                    <div className="text-xs font-medium text-muted-foreground mb-1">Produto:</div>
-                                    <div className="text-sm font-medium text-foreground line-clamp-2">
-                                      {conv.analysis_data.products_mentioned[0].product}
-                                      {conv.analysis_data.products_mentioned[0].variant && 
-                                        ` - ${conv.analysis_data.products_mentioned[0].variant}`
-                                      }
-                                    </div>
-                                  </div>
-                                )}
+                                {/* FACTORY PATTERN: Conteúdo por tipo de card */}
+                                {renderCardContent(conv)}
 
-                                {/* Métricas - Valor e Probabilidade */}
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="text-center bg-primary/5 rounded-md p-2">
-                                    <div className="text-xs text-muted-foreground mb-1">Valor Est.</div>
-                                    <div className="text-sm font-bold text-primary">
-                                      {formatCurrency(conv.analysis_data?.sales_prediction?.estimated_ticket_value)}
-                                    </div>
-                                  </div>
-                                  <div className="text-center bg-green-50 dark:bg-green-950/30 rounded-md p-2">
-                                    <div className="text-xs text-muted-foreground mb-1">Conversão</div>
-                                    <div className="text-sm font-bold text-green-600 dark:text-green-400">
-                                      {typeof conv.analysis_data?.purchase_intent?.score === 'number' 
-                                        ? `${Math.round(conv.analysis_data.purchase_intent.score * 100)}%`
-                                        : '--'
-                                      }
-                                    </div>
-                                  </div>
-                                </div>
+                                {/* FACTORY PATTERN: Métricas por tipo de card */}
+                                {renderCardMetrics(conv)}
 
                                 {/* Footer - Tempo e Mensagens */}
                                 <div className="flex justify-between items-center pt-2 border-t border-border">

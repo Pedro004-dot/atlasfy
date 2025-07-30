@@ -1,153 +1,246 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { MetricsCards } from '@/components/dashboard/metrics-cards';
-import { RecentSales } from '@/components/dashboard/recent-sales';
-import { DashboardData } from '@/types/dashboard';
-import { useAuth } from '@/hooks/useAuth';
+import { useUser } from "@/contexts/UserContext";
+import { useEmpresa } from "@/contexts/EmpresaContext";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Building2, 
+  Users, 
+  BarChart3, 
+  Plus, 
+  MessageSquare, 
+  TrendingUp,
+  ArrowRight,
+  Loader2
+} from 'lucide-react';
+import Link from 'next/link';
 
-interface DashboardPageState {
-  data: DashboardData | null;
+interface DashboardStats {
+  totalEmpresas: number;
+  totalClientes: number;
   isLoading: boolean;
-  error: string | null;
 }
 
 export default function DashboardPage() {
-  const [state, setState] = useState<DashboardPageState>({
-    data: null,
-    isLoading: true,
-    error: null,
+  const user = useUser();
+  const { empresaSelecionada } = useEmpresa();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalEmpresas: 0,
+    totalClientes: 0,
+    isLoading: true
   });
 
-
-  const fetchDashboardData = async () => {
+  // Buscar estatísticas
+  const fetchStats = async () => {
     try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      setStats(prev => ({ ...prev, isLoading: true }));
       const token = localStorage.getItem('auth-token');
+      
       if (!token) {
         throw new Error('Token não encontrado');
       }
-      const empresaId = '3749ded8-bdd3-4055-a44c-fc64fd0f70df'; // Troque por dinâmico se necessário
-      const response = await fetch(`/api/dashboard/overview?empresa_id=${empresaId}`, {
+
+      // Buscar empresas
+      const empresasResponse = await fetch('/api/empresas', {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
-      if (!response.ok) {
-        throw new Error('Erro ao buscar dados do dashboard');
-      }
-      const data = await response.json();
 
-      // Trate o shape do dado conforme esperado
-      if (!data.success) {
-        throw new Error(data.message || 'Erro ao carregar dados');
+      let totalEmpresas = 0;
+      if (empresasResponse.ok) {
+        const empresasData = await empresasResponse.json();
+        totalEmpresas = empresasData.data?.length || 0;
       }
 
-      setState(prev => ({
-        ...prev,
-        data: data.data,
-        isLoading: false,
-      }));
-    } catch (error: any) {
-      console.error('Erro ao buscar dados do dashboard:', error);
-      setState(prev => ({
-        ...prev,
-        error: error.message || 'Erro desconhecido',
-        isLoading: false,
-      }));
+      // Buscar clientes (usando primeira empresa se disponível)
+      let totalClientes = 0;
+      if (empresaSelecionada) {
+        const clientesResponse = await fetch(`/api/clientes?empresa_id=${empresaSelecionada}&limit=1`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (clientesResponse.ok) {
+          const clientesData = await clientesResponse.json();
+          totalClientes = clientesData.data?.total || 0;
+        }
+      }
+
+      setStats({
+        totalEmpresas,
+        totalClientes,
+        isLoading: false
+      });
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas:', error);
+      setStats(prev => ({ ...prev, isLoading: false }));
     }
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    fetchStats();
+  }, [empresaSelecionada]);
 
-  if (state.error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="max-w-md w-full bg-card rounded-lg shadow-sm border border-border p-6">
-          <div className="text-center">
-            <div className="text-red-500 mb-4">
-              <svg
-                className="mx-auto h-12 w-12"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              Erro ao carregar dashboard
-            </h3>
-            <p className="text-sm text-muted-foreground mb-6">{state.error}</p>
-            <button
-              onClick={fetchDashboardData}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
-            >
-              Tentar novamente
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const actionCards = [
+    {
+      title: "Criar Empresa",
+      description: "Crie um agente para sua empresa para organizar seus negócios.",
+      icon: Building2,
+      href: "/dashboard/empresa",
+      tag: "Automação",
+      tagIcon: Plus,
+      color: "from-red-500 to-orange-500",
+      bgColor: "bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30"
+    },
+    {
+      title: "Visualizar Clientes",
+      description: "Gerencie todos os seus clientes.",
+      icon: Users,
+      href: "/dashboard/clientes",
+      tag: "Comunicação",
+      tagIcon: MessageSquare,
+      color: "from-blue-500 to-purple-500",
+      bgColor: "bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30"
+    },
+    {
+      title: "Analisar Métricas",
+      description: "Acompanhe métricas de desempenho, leads gerados e eficácia dos seus agentes de IA.",
+      icon: BarChart3,
+      href: "/dashboard/analise",
+      tag: "Análise",
+      tagIcon: TrendingUp,
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30"
+    }
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          Visão geral das suas vendas e métricas de hoje
-        </p>
-      </div>
-
-      {/* Métricas */}
-      <MetricsCards
-        metrics={state.data?.metrics || {
-          vendasHoje: 0,
-          leadsHoje: 0,
-          taxaConversao: 0,
-          carrinhoAbandonado: 0,
-        }}
-        isLoading={state.isLoading}
-      />
-
-      {/* Últimas Vendas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <RecentSales
-            vendas={state.data?.ultimasVendas || []}
-            isLoading={state.isLoading}
-          />
-        </div>
+    <div 
+      className="min-h-screen bg-background p-6"
+      style={{ 
+        fontFamily: 'var(--font-sans)', 
+        letterSpacing: 'var(--tracking-normal)' 
+      }}
+    >
+      <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Espaço para gráficos futuros */}
-        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            Resumo Rápido
-          </h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Status do sistema</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Online
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Última atualização</span>
-              <span className="text-xs text-muted-foreground">
-                {new Date().toLocaleTimeString('pt-BR')}
-              </span>
+        {/* Header com saudação */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h1 
+              className="text-4xl font-bold leading-tight"
+              style={{
+                fontFamily: 'Montserrat, Inter, sans-serif',
+                background: 'linear-gradient(135deg, hsl(0 100% 60%) 0%, hsl(var(--foreground)) 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundSize: '200% 200%',
+                animation: 'gradient-shift 3s ease-in-out infinite'
+              }}
+            >
+              Olá, {user?.nome || 'Usuário'}!
+            </h1>
+            
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                <span>
+                  {stats.isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin inline" />
+                  ) : (
+                    `${stats.totalEmpresas} empresa${stats.totalEmpresas !== 1 ? 's' : ''} criada${stats.totalEmpresas !== 1 ? 's' : ''}`
+                  )}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span>
+                  {stats.isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin inline" />
+                  ) : (
+                    `${stats.totalClientes} cliente${stats.totalClientes !== 1 ? 's' : ''}`
+                  )}
+                </span>
+              </div>
+              
+              <Link 
+                href="/dashboard/analise"
+                className="text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                Ver Insights
+              </Link>
             </div>
           </div>
         </div>
+
+        {/* Seção "O que você deseja fazer hoje?" */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-foreground">
+            O que você deseja fazer hoje?
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {actionCards.map((card, index) => {
+              const Icon = card.icon;
+              const TagIcon = card.tagIcon;
+              
+              return (
+                <Card 
+                  key={index}
+                  className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 overflow-hidden ${card.bgColor}`}
+                  style={{ 
+                    borderRadius: 'var(--radius-lg)',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                >
+                  <Link href={card.href} className="block p-6 h-full">
+                    <div className="space-y-4">
+                      {/* Header do Card */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center`}
+                            style={{ borderRadius: 'var(--radius)' }}
+                          >
+                            <Icon className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-foreground text-lg">
+                              {card.title}
+                            </h3>
+                            <Badge 
+                              variant="secondary" 
+                              className="text-xs font-medium mt-1"
+                              style={{ borderRadius: 'var(--radius-sm)' }}
+                            >
+                              <TagIcon className="h-3 w-3 mr-1" />
+                              {card.tag}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      </div>
+                      
+                      {/* Descrição */}
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {card.description}
+                      </p>
+                    </div>
+                  </Link>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     </div>
   );

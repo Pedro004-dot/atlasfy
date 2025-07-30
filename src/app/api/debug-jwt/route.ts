@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const userId = 'e8e11df6-9ebd-4eaf-bc50-6056144e888d';
     const email = 'pedro.rocha@aluno.lsb.com.br';
     
-    const token = await authService.generateJWT(userId, email);
+    const token = await authService.generateJWT(userId, email, 'Usuário Teste');
     
     // Test token verification
     const verification = await authService.verifyJWT(token);

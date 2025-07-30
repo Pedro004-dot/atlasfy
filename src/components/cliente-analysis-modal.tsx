@@ -176,7 +176,7 @@ export function ClienteAnalysisModal({ isOpen, onClose, conversation }: ClienteA
                   {formatPhone(conversation.cliente_telefone)}
                 </Badge>
                 <Badge variant="default" className="text-xs">
-                  {analysis.lead_status?.stage || 'N/A'}
+                  {analysis.lead_status?.stage || 'N/A'} 
                 </Badge>
               </div>
               <div className="flex items-center gap-2">

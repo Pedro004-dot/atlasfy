@@ -119,7 +119,7 @@ export class AuthService implements IAuthService {
       await userRepository.updateLastAccess(user.id);
 
       console.log('Gerando JWT...');
-      const token = await this.generateJWT(user.id, user.email, user.plano_id || '');
+      const token = await this.generateJWT(user.id, user.email, user.nome, user.plano_id || '');
       console.log('JWT gerado com sucesso');
 
       console.log('Login bem-sucedido');
@@ -182,7 +182,7 @@ export class AuthService implements IAuthService {
       await userRepository.verifyEmail(user.id);
       await tokenRepository.markAsUsed(tokenData.id);
 
-      const token = await this.generateJWT(user.id, user.email, user.plano_id || '');
+      const token = await this.generateJWT(user.id, user.email, user.nome, user.plano_id || '');
 
       await emailService.sendWelcomeEmail(user.email, user.nome);
 
@@ -275,7 +275,7 @@ export class AuthService implements IAuthService {
       await userRepository.updatePassword(user.id, senha_hash);
       await tokenRepository.markAsUsed(tokenData.id);
 
-      const token = await this.generateJWT(user.id, user.email, user.plano_id || '');
+      const token = await this.generateJWT(user.id, user.email, user.nome, user.plano_id || '');
 
       return {
         success: true,
@@ -306,10 +306,12 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async generateJWT(userId: string, email: string, plano_id: string | null = null): Promise<string> {
+  async generateJWT(userId: string, email: string, nome: string, plano_id: string | null = null): Promise<string> {
     const payload = {
       userId,
+      id: userId, // Para compatibilidade com o frontend
       email,
+      nome,
       plano_id,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 horas
