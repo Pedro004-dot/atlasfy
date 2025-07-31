@@ -45,11 +45,11 @@ const navigation: NavItem[] = [
     label: 'Análise',
     icon: TrendingUp,
   },
-  // {
-  //   href: '/dashboard/analysis',
-  //   label: 'Métricas',
-  //   icon: PieChart,
-  // },
+  {
+    href: '/dashboard/analysis',
+    label: 'Métricas',
+    icon: PieChart,
+  },
 ];
 
 interface SidebarProps {
