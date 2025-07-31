@@ -91,6 +91,12 @@ const stageConfig = {
     color: 'bg-purple-50 dark:bg-purple-950/30',
     borderColor: 'border-purple-200 dark:border-purple-700'
   },
+  PÓS_VENDA: {
+    title: 'Pós-Venda',
+    icon: CheckCircle2,
+    color: 'bg-green-50 dark:bg-green-950/30',
+    borderColor: 'border-green-200 dark:border-green-700'
+  },
   OUTROS: { 
     title: 'Outros', 
     icon: Users, 
@@ -135,10 +141,15 @@ interface ConversationAnalysis {
       barriers: string[];
       indicators: string[];
     };
+    timing_analysis?: {
+      best_contact_hours: string | null;
+      interaction_pattern: string;
+      optimal_follow_up_time: string | null;
+    };
     sales_prediction: {
       conversion_probability: string | number;
       estimated_ticket_value: string | number;
-      estimated_close_time_hours: string | number;
+      estimated_close_time_hours: string | number | null;
       risk_factors?: string[];
     };
     products_mentioned: Array<{
@@ -146,6 +157,12 @@ interface ConversationAnalysis {
       variant?: string;
       interest_level: string;
     }>;
+    receita_financeira?: {
+      moeda: string;
+      receita_gerada: number;
+      receita_estimada: number;
+      detalhamento_receita: string;
+    };
     sentiment_analysis: {
       customer_sentiment: string;
       satisfaction_score: string | number;
@@ -181,7 +198,7 @@ interface ConversationAnalysis {
 interface AnalysisMetrics {
   totalConversations: number;
   avgConversionRate: number;
-  totalRevenue: number;
+  receitaBruta: number;        // Receita já gerada (receita_gerada)
   avgTicket: number;
   avgResponseTime: number;
   alertsByPriority: {
@@ -201,6 +218,114 @@ export default function AnalisePage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedConversation, setSelectedConversation] = useState<ConversationAnalysis | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // SERVICE LAYER: Strategy Pattern para cálculos de receita
+  const RevenueCalculationService = {
+    // Estratégia 1: Receita Bruta (já gerada)
+    calculateReceitaBruta: (conversations: ConversationAnalysis[]): number => {
+      let total = 0;
+      let validConversations = 0;
+      
+      conversations.forEach((conv) => {
+        const receitaGerada = conv.analysis_data?.receita_financeira?.receita_gerada || 0;
+        
+        // Log para debug
+        if (receitaGerada > 0) {
+          console.log(`[RevenueCalculation] Conversa ${conv.conversation_id}: receita_gerada = ${receitaGerada}`);
+          validConversations++;
+        }
+        
+        // Validação de segurança - evitar valores absurdos
+        if (typeof receitaGerada === 'number' && !isNaN(receitaGerada) && receitaGerada > 0 && receitaGerada <= 100000) {
+          total += receitaGerada;
+        } else if (receitaGerada > 100000) {
+          console.warn(`[RevenueCalculation] Valor suspeito ignorado: ${receitaGerada} da conversa ${conv.conversation_id}`);
+        }
+      });
+      
+      console.log(`[RevenueCalculation] Total receita bruta: ${total} de ${validConversations} conversas válidas`);
+      return total;
+    },
+
+
+    // Estratégia 2: Ticket Médio (baseado na receita bruta)
+    calculateTicketMedio: (conversations: ConversationAnalysis[]): number => {
+      const conversasComReceita = conversations.filter(conv => 
+        (conv.analysis_data?.receita_financeira?.receita_gerada || 0) > 0
+      );
+      
+      if (conversasComReceita.length === 0) return 0;
+      
+      const totalReceita = RevenueCalculationService.calculateReceitaBruta(conversasComReceita);
+      return totalReceita / conversasComReceita.length;
+    },
+
+    // Método principal que calcula todas as métricas
+    calculateAllMetrics: (conversations: ConversationAnalysis[]): AnalysisMetrics => {
+      if (!conversations.length) {
+        return {
+          totalConversations: 0,
+          avgConversionRate: 0,
+          receitaBruta: 0,
+          avgTicket: 0,
+          avgResponseTime: 0,
+          alertsByPriority: { critical: 0, high: 0, medium: 0, low: 0 }
+        };
+      }
+
+      // Calcular métricas de conversão
+      let totalConversionScore = 0;
+      let totalResponseTime = 0;
+      let validResponseCount = 0;
+      let alertCounts = { critical: 0, high: 0, medium: 0, low: 0 };
+
+      conversations.forEach(conv => {
+        const analysis = conv.analysis_data;
+        
+        if (analysis) {
+          // Taxa de conversão
+          if (typeof analysis.purchase_intent?.score === 'number') {
+            totalConversionScore += analysis.purchase_intent.score;
+          }
+
+          // Tempo de resposta
+          const responseTime = analysis.conversation_metrics?.response_time_avg_minutes;
+          if (typeof responseTime === 'number' && !isNaN(responseTime)) {
+            totalResponseTime += responseTime;
+            validResponseCount++;
+          }
+
+          // Alertas
+          analysis.alerts?.forEach((alert: any) => {
+            const severity = alert.severity?.toLowerCase();
+            
+            if (severity === 'crítico' || severity === 'critical') {
+              alertCounts.critical++;
+            } else if (severity === 'alto' || severity === 'high' || severity === 'alta') {
+              alertCounts.high++;
+            } else if (severity === 'médio' || severity === 'medium' || severity === 'media' || 
+                       severity === 'moderado' || severity === 'moderate' || severity === 'moderada') {
+              alertCounts.medium++;
+            } else if (severity === 'baixo' || severity === 'low' || severity === 'menor' || 
+                       severity === 'normal' || severity === 'baixa') {
+              alertCounts.low++;
+            } else {
+              alertCounts.low++;
+            }
+          });
+        }
+      });
+
+      return {
+        totalConversations: conversations.length,
+        avgConversionRate: conversations.length > 0 ? (totalConversionScore / conversations.length) * 100 : 0,
+        receitaBruta: RevenueCalculationService.calculateReceitaBruta(conversations),
+        avgTicket: RevenueCalculationService.calculateTicketMedio(conversations),
+        avgResponseTime: validResponseCount > 0 ? totalResponseTime / validResponseCount : 0,
+        alertsByPriority: alertCounts
+      };
+    }
+  };
 
   const fetchAnalysisData = async () => {
     if (!empresaSelecionada) return;
@@ -227,8 +352,12 @@ export default function AnalisePage() {
         throw new Error(data.message || 'Erro ao carregar dados');
       }
       console.log('[AnalisePage] data:', data);
-      setConversations(data.conversations || []);
-      setMetrics(data.metrics || null);
+      const conversationsData = data.conversations || [];
+      setConversations(conversationsData);
+      
+      // Usar o Service Layer para calcular métricas
+      const calculatedMetrics = RevenueCalculationService.calculateAllMetrics(conversationsData);
+      setMetrics(calculatedMetrics);
     } catch (err: any) {
       console.error('Erro ao carregar análise:', err);
       setError(err.message || 'Erro desconhecido');
@@ -262,33 +391,51 @@ export default function AnalisePage() {
         sales_prediction: conv.analysis_data?.sales_prediction || { 
           conversion_probability: 0, 
           estimated_ticket_value: 0, 
-          estimated_close_time_hours: 0 
+          estimated_close_time_hours: null 
         },
         products_mentioned: conv.analysis_data?.products_mentioned || [],
         sentiment_analysis: conv.analysis_data?.sentiment_analysis || { 
           customer_sentiment: 'neutro', 
           satisfaction_score: 0 
+        },
+        timing_analysis: conv.analysis_data?.timing_analysis || {
+          best_contact_hours: null,
+          interaction_pattern: 'passivo',
+          optimal_follow_up_time: null
+        },
+        receita_financeira: conv.analysis_data?.receita_financeira || {
+          moeda: 'BRL',
+          receita_gerada: 0,
+          receita_estimada: 0,
+          detalhamento_receita: 'Não especificado'
+        },
+        conversion_analysis: conv.analysis_data?.conversion_analysis || {
+          status: 'active',
+          lost_reason: '',
+          lost_category: '',
+          lost_description: '',
+          lost_stage: '',
+          lost_date: '',
+          recovery_potential: 'medium'
+        },
+        follow_up_analysis: conv.analysis_data?.follow_up_analysis || {
+          needs_follow_up: false,
+          follow_up_priority: 'low',
+          last_interaction_type: null,
+          follow_up_approach: null,
+          interest_signals: [],
+          optimal_follow_up_message: null
         }
       }
     };
   };
 
-  // Função para determinar estágio (STRATEGY PATTERN)
+    // Função para determinar estágio - SIMPLIFICADA
   const getConversationStage = (conv: ConversationAnalysis): string => {
     const normalizedConv = normalizeConversation(conv);
     const stage = normalizedConv.analysis_data?.lead_status?.stage;
     
-    // Verificar se é lead perdido baseado em conversion_analysis
-    if (normalizedConv.analysis_data?.conversion_analysis?.status === 'lost') {
-      return 'LEAD_PERDIDO';
-    }
-    
-    // Verificar se é follow-up baseado em follow_up_analysis
-    if (normalizedConv.analysis_data?.follow_up_analysis?.needs_follow_up) {
-      return 'FOLLOW_UP';
-    }
-    
-    // Usar stage padrão ou OUTROS
+    // Retorna diretamente o stage do banco ou OUTROS se não existir
     return (stage && stageConfig[stage as keyof typeof stageConfig]) ? stage : 'OUTROS';
   };
 
@@ -319,6 +466,25 @@ export default function AnalisePage() {
     return stages;
   }, [conversations]);
 
+  // Calcular receita possível por estágio
+  const getStageRevenue = (stageKey: string): number => {
+    const stageConversations = conversationsByStage[stageKey] || [];
+    let total = 0;
+    
+    stageConversations.forEach((conv) => {
+      const receitaEstimada = conv.analysis_data?.receita_financeira?.receita_estimada || 0;
+      
+      // Validação de segurança - evitar valores absurdos
+      if (typeof receitaEstimada === 'number' && !isNaN(receitaEstimada) && receitaEstimada > 0 && receitaEstimada <= 100000) {
+        total += receitaEstimada;
+      } else if (receitaEstimada > 100000) {
+        console.warn(`[StageRevenue] Valor suspeito ignorado no estágio ${stageKey}: ${receitaEstimada} da conversa ${conv.conversation_id}`);
+      }
+    });
+    
+    return total;
+  };
+
   // Calcular alertas por prioridade
   const alertsByPriority = React.useMemo(() => {
     const counts = { critical: 0, high: 0, medium: 0, low: 0 };
@@ -348,30 +514,60 @@ export default function AnalisePage() {
   }, [conversations]);
 
   const formatCurrency = (value: string | number) => {
-    
-    if (!value || value === 'N/A' || value === 'não_aplicável' || value === 'Não especificado na conversa' || value === '[Não especificado na conversa]' || value === 'INDEFINIDO' || value === 'Não informado' || value === 'indefinido' || value === 'Inválido') return 'N/A';
-    
-    // Se é string, usar parsing melhorado
-    if (typeof value === 'string') {
-      // Parsing simples e eficaz: extrair todos os números e pegar o maior
-      const matches = value.match(/\d+/g);
-      if (matches && matches.length > 0) {
-        const valores = matches.map(match => parseFloat(match)).filter(v => !isNaN(v) && v > 0);
-        const num = valores.length > 0 ? Math.max(...valores) : 0;
-        return num > 0 ? new Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        }).format(num) : 'N/A';
-      } else {
-        return 'N/A';
-      }
+    // Valores nulos ou inválidos
+    if (!value || value === 'N/A' || value === 'não_aplicável' || value === 'Não especificado na conversa' || value === '[Não especificado na conversa]' || value === 'INDEFINIDO' || value === 'Não informado' || value === 'indefinido' || value === 'Inválido') {
+      return 'N/A';
     }
     
-    // Se é número
-    return isNaN(value) ? 'N/A' : new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+    let numericValue: number;
+    
+    // Se é string, fazer parsing simples
+    if (typeof value === 'string') {
+      // Tentar parsing direto primeiro
+      const directParse = parseFloat(value);
+      if (!isNaN(directParse)) {
+        numericValue = directParse;
+      } else {
+        // Se falhar, fazer limpeza e tentar novamente
+        const cleanValue = value.replace(/[^\d.,]/g, '');
+        
+        if (!cleanValue) return 'N/A';
+        
+        // Converter vírgula para ponto e fazer parsing
+        const normalizedValue = cleanValue.replace(',', '.');
+        numericValue = parseFloat(normalizedValue);
+      }
+    } else if (typeof value === 'number') {
+      numericValue = value;
+    } else {
+      return 'N/A';
+    }
+    
+    // Validação de segurança
+    if (isNaN(numericValue) || numericValue < 0) {
+      return 'N/A';
+    }
+    
+    // Se valor é 0, mostrar como R$ 0,00
+    if (numericValue === 0) {
+      return 'R$ 0,00';
+    }
+    
+    // Log para debug em valores muito altos
+    if (numericValue > 100000) {
+      console.warn(`[formatCurrency] Valor alto detectado: ${numericValue} (original: ${value})`);
+    }
+    
+    // Formatação final
+    try {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(numericValue);
+    } catch (error) {
+      console.error(`[formatCurrency] Erro na formatação:`, error, 'valor:', numericValue);
+      return `R$ ${numericValue.toFixed(2).replace('.', ',')}`;
+    }
   };
 
   const formatPhone = (phone: string) => {
@@ -625,10 +821,22 @@ export default function AnalisePage() {
         <div className="text-center text-destructive py-8">{error}</div>
       )}
 
-      {empresaSelecionada && !loading && !error && (
-        <>
-          {/* Métricas Executivas */}
+                {empresaSelecionada && !loading && !error && (
+            <>
+             
+              {/* Métricas Executivas - 4 Cards apenas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">Receita Bruta</span>
+                <DollarSign className="h-4 w-4 text-green-600" />
+              </div>
+              <div className="text-2xl font-bold text-foreground">
+                {metrics ? formatCurrency(metrics.receitaBruta) : '--'}
+              </div>
+              <p className="text-xs text-muted-foreground">Receita já gerada</p>
+            </Card>
+
             <Card className="p-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-muted-foreground">Taxa de Conversão</span>
@@ -638,17 +846,6 @@ export default function AnalisePage() {
                 {metrics ? `${Math.round(metrics.avgConversionRate)}%` : '--'}
               </div>
               <p className="text-xs text-muted-foreground">Média do período</p>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-muted-foreground">Receita Estimada</span>
-                <DollarSign className="h-4 w-4 text-primary" />
-              </div>
-              <div className="text-2xl font-bold text-foreground">
-                {metrics ? formatCurrency(metrics.totalRevenue) : '--'}
-              </div>
-              <p className="text-xs text-muted-foreground">Potencial identificado</p>
             </Card>
 
             <Card className="p-6">
@@ -674,30 +871,6 @@ export default function AnalisePage() {
             </Card>
           </div>
 
-          {/* Alertas por Prioridade
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            {Object.entries(alertsByPriority).map(([priority, count]) => {
-              const config = severityConfig[priority as keyof typeof severityConfig];
-              const Icon = config.icon;
-              
-              return (
-                <Card key={priority} className={`p-4 ${config.bgColor} ${config.borderColor} border`}>
-                  <div className="flex items-center gap-3">
-                    <Icon className={`h-5 w-5 ${config.textColor}`} />
-                    <div>
-                      <div className="text-2xl font-bold">{count}</div>
-                      <div className="text-sm capitalize text-muted-foreground">
-                        {priority === 'critical' ? 'Crítico' : 
-                         priority === 'high' ? 'Alto' :
-                         priority === 'medium' ? 'Médio' : 'Baixo'}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div> */}
-
           {/* Kanban Board */}
           <Card className="p-6">
             <div className="flex justify-between items-center mb-4">
@@ -710,16 +883,29 @@ export default function AnalisePage() {
             <div className="overflow-x-auto">
               <div className="flex gap-4 min-w-max pb-4">
                 {Object.entries(stageConfig).map(([stageKey, stageInfo]) => {
+            
+                   
                   const stageConversations = conversationsByStage[stageKey] || [];
                   const StageIcon = stageInfo.icon;
+                  const stageRevenue = getStageRevenue(stageKey);
+                  
+                  // Determinar se deve mostrar receita possível
+                  const shouldShowRevenue = ['EM_NEGOCIACAO', 'AGUARDANDO_PAGAMENTO'].includes(stageKey);
                   
                   return (
                     <div key={stageKey} className="flex flex-col w-80 flex-shrink-0">
                       <div className={`${stageInfo.color} ${stageInfo.borderColor} border rounded-lg p-4 mb-4`}>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <StageIcon className="h-5 w-5" />
-                            <span className="font-semibold text-sm">{stageInfo.title}</span>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <StageIcon className="h-5 w-5" />
+                              <span className="font-semibold text-sm">{stageInfo.title}</span>
+                            </div>
+                            {shouldShowRevenue && stageRevenue > 0 && (
+                              <div className="text-xs text-muted-foreground">
+                                💰 {formatCurrency(stageRevenue)} possível
+                              </div>
+                            )}
                           </div>
                           <Badge variant="secondary" className="text-xs font-medium">
                             {stageConversations.length}
@@ -737,6 +923,7 @@ export default function AnalisePage() {
                             <Card 
                               key={conv.conversation_id}
                               className={`p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border ${
+                              
                                 conv.analysis_data?.lead_status?.stage === 'LEAD_PERDIDO' 
                                   ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700'
                                   : conv.analysis_data?.lead_status?.stage === 'FOLLOW_UP'

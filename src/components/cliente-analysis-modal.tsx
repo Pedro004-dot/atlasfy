@@ -55,10 +55,15 @@ interface ConversationAnalysis {
       barriers: string[];
       indicators: string[];
     };
+    timing_analysis?: {
+      best_contact_hours: string | null;
+      interaction_pattern: string;
+      optimal_follow_up_time: string | null;
+    };
     sales_prediction: {
       conversion_probability: string | number;
       estimated_ticket_value: string | number;
-      estimated_close_time_hours: string | number;
+      estimated_close_time_hours: string | number | null;
       risk_factors?: string[];
     };
     products_mentioned: Array<{
@@ -66,6 +71,12 @@ interface ConversationAnalysis {
       variant?: string;
       interest_level: string;
     }>;
+    receita_financeira?: {
+      moeda: string;
+      receita_gerada: number;
+      receita_estimada: number;
+      detalhamento_receita: string;
+    };
     sentiment_analysis: {
       customer_sentiment: string;
       satisfaction_score: string | number;
@@ -77,6 +88,23 @@ interface ConversationAnalysis {
       customer_messages: number;
       response_time_avg_minutes: number;
       last_interaction_hours_ago: number | null;
+    };
+    conversion_analysis?: {
+      status: string;
+      lost_reason?: string;
+      lost_category?: string;
+      lost_description?: string;
+      lost_stage?: string;
+      lost_date?: string;
+      recovery_potential?: string;
+    };
+    follow_up_analysis?: {
+      needs_follow_up: boolean;
+      follow_up_priority?: string;
+      last_interaction_type?: string;
+      follow_up_approach?: string;
+      interest_signals?: string[];
+      optimal_follow_up_message?: string;
     };
   };
 }

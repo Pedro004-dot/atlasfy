@@ -1,5 +1,6 @@
 {
   "/login/page": "app/login/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
   "/api/auth/completar-perfil/route": "app/api/auth/completar-perfil/route.js",
   "/api/empresas/route": "app/api/empresas/route.js",

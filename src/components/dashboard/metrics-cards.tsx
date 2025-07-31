@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { TrendingUp, Users, Target, ShoppingCart } from 'lucide-react';
-import { DashboardMetrics } from '@/types/dashboard';
 
 interface MetricCardProps {
   title: string;
@@ -34,8 +33,15 @@ function MetricCard({ title, value, icon: Icon, trend = 'neutral', className = '
   );
 }
 
+interface SimpleMetrics {
+  vendasHoje: number;
+  leadsHoje: number;
+  taxaConversao: number;
+  carrinhoAbandonado: number;
+}
+
 interface MetricsCardsProps {
-  metrics: DashboardMetrics;
+  metrics: SimpleMetrics;
   isLoading?: boolean;
 }
 

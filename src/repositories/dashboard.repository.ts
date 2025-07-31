@@ -1,8 +1,9 @@
 import { databaseService } from '@/lib/database';
-import { DashboardMetrics, UltimaVenda } from '@/types/dashboard';
+import { DashboardMetrics, SimpleDashboardMetrics } from '@/types/metrics.types';
+import { UltimaVenda } from '@/types/dashboard';
 
 export interface IDashboardRepository {
-  getMetricsByEmpresa(empresaId: string): Promise<DashboardMetrics>;
+  getMetricsByEmpresa(empresaId: string): Promise<SimpleDashboardMetrics>;
   getUltimasVendasByEmpresa(empresaId: string): Promise<UltimaVenda[]>;
   getEmpresasByUsuario(usuarioId: string): Promise<string[]>;
   getOverviewByEmpresa(empresaId: string, period?: string): Promise<DashboardOverview | null>;
@@ -39,7 +40,7 @@ export class DashboardRepository implements IDashboardRepository {
     return empresas?.map(e => e.empresa_id) || [];
   }
 
-  async getMetricsByEmpresa(empresaId: string): Promise<DashboardMetrics> {
+  async getMetricsByEmpresa(empresaId: string): Promise<SimpleDashboardMetrics> {
     const supabase = databaseService.getClient();
     const hoje = new Date().toISOString().split('T')[0];
 
@@ -133,7 +134,7 @@ export class DashboardRepository implements IDashboardRepository {
       cliente_nome: (venda.cliente as any)?.nome || 'Cliente não informado',
       valor_total: venda.valor_total,
       created_at: venda.created_at,
-      status_pagamento: venda.status_pagamento,
+      status: venda.status_pagamento,
     })) || [];
   }
 

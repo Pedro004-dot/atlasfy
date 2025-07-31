@@ -10,7 +10,9 @@ import {
   BarChart3, 
   Menu, 
   X,
-  LogOut
+  LogOut,
+  TrendingUp,
+  PieChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -41,8 +43,13 @@ const navigation: NavItem[] = [
   {
     href: '/dashboard/analise',
     label: 'Análise',
-    icon: BarChart3,
+    icon: TrendingUp,
   },
+  // {
+  //   href: '/dashboard/analysis',
+  //   label: 'Métricas',
+  //   icon: PieChart,
+  // },
 ];
 
 interface SidebarProps {
