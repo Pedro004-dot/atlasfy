@@ -19,6 +19,7 @@ dist/
 
 # MCP
 mcp.json
+gemini/settings.json
 
 # Vercel
 .vercel
