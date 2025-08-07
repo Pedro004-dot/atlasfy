@@ -116,46 +116,56 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
           // Se não há QR Code no banco, tentar buscar na Evolution API
           if (!connection.qr_code) {
-            try {
-              const qrResponse = await fetch(`${evolutionApiUrl}/instance/connect/${instanceName}`, {
-                method: 'GET',
-                headers: {
-                  'apikey': evolutionApiKey,
-                  'Content-Type': 'application/json',
-                },
-              });
-
-              if (qrResponse.ok) {
-                const qrData = await qrResponse.json();
-                console.log('Buscando QR Code na Evolution API:', {
-                  hasBase64: !!qrData.base64,
-                  base64Length: qrData.base64?.length || 0
-                });
+            // Verificar se a conexão foi criada há pelo menos 1 segundo
+            const connectionAge = now.getTime() - new Date(connection.created_at).getTime();
+            
+            if (connectionAge >= 1000) { // 1 segundo
+              try {
+                console.log(`Tentando buscar QR Code para instância ${instanceName} (idade: ${Math.round(connectionAge/1000)}s)`);
                 
-                if (qrData.base64) {
-                  // Atualizar QR Code no banco
-                  await supabase
-                    .from('whatsapp_connections')
-                    .update({ 
-                      qr_code: qrData.base64,
-                      last_updated: now.toISOString() 
-                    })
-                    .eq('id', connection.id);
+                const qrResponse = await fetch(`${evolutionApiUrl}/instance/connect/${instanceName}`, {
+                  method: 'GET',
+                  headers: {
+                    'apikey': evolutionApiKey,
+                    'Content-Type': 'application/json',
+                  },
+                });
 
-                  return NextResponse.json({
-                    success: true,
-                    data: {
-                      qrCode: qrData.base64,
-                      status: connection.status,
-                      phoneNumber: connection.phone_number,
-                      profileName: null,
-                      attemptsRemaining: connection.connection_attempts || 0
-                    }
+                if (qrResponse.ok) {
+                  const qrData = await qrResponse.json();
+                  console.log('Buscando QR Code na Evolution API:', {
+                    hasBase64: !!qrData.base64,
+                    base64Length: qrData.base64?.length || 0,
+                    instanceAge: Math.round(connectionAge/1000) + 's'
                   });
+                  
+                  if (qrData.base64) {
+                    // Atualizar QR Code no banco
+                    await supabase
+                      .from('whatsapp_connections')
+                      .update({ 
+                        qr_code: qrData.base64,
+                        last_updated: now.toISOString() 
+                      })
+                      .eq('id', connection.id);
+
+                    return NextResponse.json({
+                      success: true,
+                      data: {
+                        qrCode: qrData.base64,
+                        status: connection.status,
+                        phoneNumber: connection.phone_number,
+                        profileName: null,
+                        attemptsRemaining: connection.connection_attempts || 0
+                      }
+                    });
+                  }
                 }
+              } catch (qrError) {
+                console.warn('Erro ao buscar QR Code na Evolution API:', qrError);
               }
-            } catch (qrError) {
-              console.warn('Erro ao buscar QR Code na Evolution API:', qrError);
+            } else {
+              console.log(`Aguardando mais ${Math.round((1000 - connectionAge)/1000)}s antes de buscar QR Code`);
             }
           }
         }

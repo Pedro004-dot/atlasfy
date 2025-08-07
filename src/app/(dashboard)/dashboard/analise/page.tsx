@@ -790,7 +790,7 @@ export default function AnalisePage() {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <EmpresaSelector className="min-w-[200px]" />
+          {/* <EmpresaSelector className="min-w-[200px]" /> */}
           
           <div className="flex gap-2">
             {timeFilters.map(f => (

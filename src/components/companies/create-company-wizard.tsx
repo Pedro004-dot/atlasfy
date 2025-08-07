@@ -27,7 +27,7 @@ import { AgentConfigStep } from './wizard-steps/agent-config-step';
 import { ObjectionsStep } from './wizard-steps/objections-step';
 import { ProductsStep } from './wizard-steps/products-step';
 import { BlockedNumbersStep } from './wizard-steps/blocked-numbers-step';
-import { WhatsAppStep } from './wizard-steps/whatsapp-step';
+import { WhatsAppConnectionStep } from './wizard-steps/whatsapp-connection-step';
 import { AdvancedConfigStep } from './wizard-steps/advanced-config-step';
 import { StepIndicator } from './wizard-steps/step-indicator';
 import { AgentTypeSelectionStep, AgentType } from './wizard-steps/agent-type-selection-step';
@@ -306,7 +306,7 @@ export function CreateCompanyWizard({
           );
         case 4:
           return (
-            <WhatsAppStep
+            <WhatsAppConnectionStep
               data={{
                 ...whatsappConnection,
                 profileName: whatsappConnection.profileName ?? undefined
@@ -375,7 +375,7 @@ export function CreateCompanyWizard({
           );
         case 8:
           return (
-            <WhatsAppStep
+            <WhatsAppConnectionStep
               data={{
                 ...whatsappConnection,
                 profileName: whatsappConnection.profileName ?? undefined
