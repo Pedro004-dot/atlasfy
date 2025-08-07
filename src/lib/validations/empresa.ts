@@ -153,9 +153,20 @@ export const produtoSchema = z.object({
 // WhatsApp Connection Schema
 export const whatsappConnectionSchema = z.object({
   connected: z.boolean().default(false),
+  connectionType: z.enum(['evolution', 'official']).optional(),
   phoneNumber: z.string().optional(),
   profileName: z.string().optional().nullable(),
   instanceName: z.string().optional(),
+  qrCode: z.string().optional(),
+  // Evolution API specific
+  instanceId: z.string().optional(),
+  instanceToken: z.string().optional(),
+  // Official API specific
+  phoneNumberId: z.string().optional(),
+  businessAccountId: z.string().optional(),
+  accessToken: z.string().optional(),
+  appSecret: z.string().optional(),
+  webhookUrl: z.string().url().optional(),
 });
 
 // Blocked Numbers Schema

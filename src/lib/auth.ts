@@ -87,3 +87,94 @@ export function verifyJWT(token: string): { userId: string; email: string } {
     throw new Error('Token inválido ou expirado');
   }
 }
+
+/**
+ * Verify auth token from request headers for API routes
+ */
+export async function verifyAuthToken(request: Request): Promise<{
+  success: boolean;
+  user?: User;
+  error?: string;
+}> {
+  try {
+    const authHeader = request.headers.get('authorization');
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return {
+        success: false,
+        error: 'Token de autorização não encontrado'
+      };
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    if (!token) {
+      return {
+        success: false,
+        error: 'Token não fornecido'
+      };
+    }
+
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return {
+        success: false,
+        error: 'Configuração de JWT não encontrada'
+      };
+    }
+
+    // Verify JWT token
+    let payload: any;
+    try {
+      payload = jwt.verify(token, jwtSecret);
+    } catch (jwtError) {
+      return {
+        success: false,
+        error: 'Token inválido ou expirado'
+      };
+    }
+
+    if (!payload?.userId) {
+      return {
+        success: false,
+        error: 'Token inválido - ID do usuário não encontrado'
+      };
+    }
+
+    // Get user from database
+    const user = await userRepository.findById(payload.userId);
+    
+    if (!user) {
+      return {
+        success: false,
+        error: 'Usuário não encontrado'
+      };
+    }
+
+    if (!user.ativo) {
+      return {
+        success: false,
+        error: 'Usuário inativo'
+      };
+    }
+
+    if (!user.email_verificado) {
+      return {
+        success: false,
+        error: 'Email não verificado'
+      };
+    }
+
+    return {
+      success: true,
+      user
+    };
+
+  } catch (error) {
+    console.error('Erro na verificação do token:', error);
+    return {
+      success: false,
+      error: 'Erro interno na verificação do token'
+    };
+  }
+}
