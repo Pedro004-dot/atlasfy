@@ -1,5 +1,9 @@
 {
-  "/login/page": "app/login/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/dashboard/analise/page": "app/(dashboard)/dashboard/analise/page.js"
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/auth/completar-perfil/route": "app/api/auth/completar-perfil/route.js",
+  "/api/empresas/usuario/route": "app/api/empresas/usuario/route.js",
+  "/api/business-rules/validate-connection/route": "app/api/business-rules/validate-connection/route.js",
+  "/api/whatsapp/official/auth/oauth-start/route": "app/api/whatsapp/official/auth/oauth-start/route.js",
+  "/api/empresas/route": "app/api/empresas/route.js",
+  "/(dashboard)/dashboard/empresa/page": "app/(dashboard)/dashboard/empresa/page.js"
 }

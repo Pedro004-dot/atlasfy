@@ -44,7 +44,7 @@ export function EmpresaSelector({ className = '' }: EmpresaSelectorProps) {
 
   return (
     <div className={className}>
-      <label htmlFor="empresa-select" className="block text-sm font-medium text-foreground mb-1">
+      <label htmlFor="empresa-select" className="block text-sm font-medium text-foreground mb-1" >
         Empresa:
       </label>
       <select
@@ -56,7 +56,7 @@ export function EmpresaSelector({ className = '' }: EmpresaSelectorProps) {
         <option value="">Selecione uma empresa</option>
         {empresas.map((empresa) => (
           <option key={empresa.id} value={empresa.id}>
-            {empresa.nome}
+            {empresa.nome }
           </option>
         ))}
       </select>

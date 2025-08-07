@@ -197,11 +197,6 @@ export class WhatsAppConnectionService implements IWhatsAppConnectionService {
       const evolutionResponse: EvolutionCreateInstanceResponse = await response.json();
       console.log('Evolution API response:', evolutionResponse);
 
-      // Update connection with initial QR code and Evolution data
-      if (evolutionResponse.qrcode?.base64) {
-        await this.whatsappRepository.updateQrCode(instanceName, evolutionResponse.qrcode.base64);
-      }
-
       // Map Evolution API status to our status enum
       const mappedStatus = this.mapEvolutionStatusToConnectionStatus(evolutionResponse.instance.status);
 
@@ -210,13 +205,49 @@ export class WhatsAppConnectionService implements IWhatsAppConnectionService {
         instanceName: evolutionResponse.instance.instanceName,
         owner: '', // Will be populated when instance is connected
         status: evolutionResponse.instance.status,
-        apikey: evolutionResponse.hash?.apikey
+        apikey: evolutionResponse.hash // hash is a string, not an object
       };
       await this.whatsappRepository.updateEvolutionData(instanceName, evolutionData);
 
       // Update status separately if needed
       if (mappedStatus !== 'pending') {
         await this.whatsappRepository.updateStatus(instanceName, mappedStatus);
+      }
+
+      // Try to get QR code after a small delay
+      let qrCodeObtained = false;
+      if (evolutionResponse.qrcode?.base64) {
+        await this.whatsappRepository.updateQrCode(instanceName, evolutionResponse.qrcode.base64);
+        qrCodeObtained = true;
+      } else {
+        // Wait and try to fetch QR code from Evolution API
+        console.log('QR Code não disponível na resposta inicial. Aguardando e tentando buscar...');
+        
+        // Try immediately to fetch QR code (it might be available now)
+        try {
+          const qrResponse = await fetch(`${this.evolutionApiUrl}/instance/connect/${instanceName}`, {
+            method: 'GET',
+            headers: {
+              'apikey': this.evolutionApiKey,
+            }
+          });
+
+          if (qrResponse.ok) {
+            const qrData = await qrResponse.json();
+            console.log('QR Code buscado imediatamente da Evolution API:', {
+              hasBase64: !!qrData.base64,
+              base64Length: qrData.base64?.length || 0
+            });
+            
+            if (qrData.base64) {
+              await this.whatsappRepository.updateQrCode(instanceName, qrData.base64);
+              console.log('QR Code atualizado no banco de dados imediatamente');
+              qrCodeObtained = true;
+            }
+          }
+        } catch (error) {
+          console.log('QR Code não disponível ainda. Será buscado via polling.');
+        }
       }
 
       // Get updated connection

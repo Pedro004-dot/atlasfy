@@ -66,7 +66,7 @@ export function CompanyCard({ company, onEdit, onDelete, onCardClick }: CompanyC
             <Building2 className="h-7 w-7 text-primary" />
           </div>
           <div>
-            <h3 className="atlas-heading font-bold text-foreground text-lg">{company.nome}</h3>
+            <h3 className="atlas-heading font-bold text-foreground text-lg blur-sm">{company.nome}</h3>
             <p className="atlas-muted text-sm">
               {company.setor || 'Setor não informado'}
             </p>
