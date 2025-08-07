@@ -84,10 +84,24 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
   };
 
   const colors = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500',
-    warning: 'bg-yellow-500',
+    success: 'bg-emerald-500 dark:bg-emerald-600',
+    error: 'bg-destructive',
+    info: 'bg-primary',
+    warning: 'bg-orange-500 dark:bg-orange-600',
+  };
+
+  const backgroundColors = {
+    success: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800',
+    error: 'bg-destructive/10 border-destructive/20',
+    info: 'bg-primary/10 border-primary/20',
+    warning: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800',
+  };
+
+  const textColors = {
+    success: 'text-emerald-800 dark:text-emerald-200',
+    error: 'text-destructive-foreground',
+    info: 'text-primary-foreground',
+    warning: 'text-orange-800 dark:text-orange-200',
   };
 
   const Icon = icons[toast.type];
@@ -95,9 +109,10 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
   return (
     <div
       className={cn(
-        'max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto overflow-hidden',
+        'max-w-sm w-full shadow-lg rounded-lg pointer-events-auto overflow-hidden border',
         'transform transition-all duration-300 ease-in-out',
-        'animate-in slide-in-from-right-full'
+        'animate-in slide-in-from-right-full',
+        backgroundColors[toast.type]
       )}
     >
       <div className="p-4">
@@ -108,14 +123,14 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
             </div>
           </div>
           <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-900">
+            <p className={cn('text-sm font-medium', textColors[toast.type])}>
               {toast.message}
             </p>
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button
               onClick={onClose}
-              className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="rounded-md inline-flex text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
             >
               <span className="sr-only">Fechar</span>
               <X className="h-5 w-5" />

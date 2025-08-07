@@ -21,7 +21,7 @@ export class ClienteService implements IClienteService {
       }
 
 
-      const result = await this.clienteRepository.getAllClientesByEmpres(empresaId);
+      const result = await this.clienteRepository.getAllClientesByEmpresa(empresaId);
       
       // Format dates for display
       result.clientes = result.clientes.map(cliente => ({

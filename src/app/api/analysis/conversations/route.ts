@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     const supabase = databaseService.getClient();
 
     // Verificar se o usuário tem acesso à empresa solicitada
-    console.log(`[API Analysis] Verificando acesso: usuário ${user.id} à empresa ${empresaId}`);
     const { data: userCompanyAccess, error: accessError } = await supabase
       .from('usuario_empresa')
       .select('id')
@@ -50,13 +49,11 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (accessError || !userCompanyAccess) {
-      console.log(`[API Analysis] Acesso negado:`, accessError);
       return NextResponse.json(
         { success: false, message: 'Usuário não tem acesso a esta empresa' },
         { status: 403 }
       );
     }
-    console.log(`[API Analysis] Acesso aprovado para usuário ${user.id}`);;
 
     // Calcular filtro de data baseado no período
     let dateFilter = '';
@@ -91,12 +88,8 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    // Buscar conversas com análises
-    const { data: conversations, error: conversationsError } = await supabase
-      .rpc('get_conversations_with_analysis', {
-        p_empresa_id: empresaId,
-        p_date_filter: dateFilter
-      });
+    // FORÇAR FALLBACK: A RPC não aplica filtro de data corretamente
+    const conversationsError = new Error('Forçando uso do fallback que funciona');
 
     if (conversationsError) {
       console.error('Erro ao buscar conversas:', conversationsError);
@@ -132,9 +125,6 @@ export async function GET(request: NextRequest) {
         throw new Error(`Erro ao buscar conversas: ${fallbackError.message}`);
       }
 
-      console.log(`[API Analysis] Aplicando filtro '${period}' - dateFilter: ${dateFilterSuperbase || 'SEM FILTRO'}`);
-      console.log(`[API Analysis] Total conversas encontradas: ${fallbackData?.length || 0}`);
-      console.log('Fallback data sample:', fallbackData?.slice(0, 2));
 
       // Buscar dados dos clientes para fazer o join manual
       const phoneSet = new Set(fallbackData?.map(item => {
@@ -185,7 +175,7 @@ export async function GET(request: NextRequest) {
 
       console.log('Processed conversations sample:', processedConversations?.slice(0, 2));
 
-      // Calcular métricas
+        // Calcular métricas
       const metrics = calculateMetrics(processedConversations);
 
       return NextResponse.json({
@@ -196,19 +186,12 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Processar dados das conversas (caso a RPC funcione no futuro)
-    const processedConversations = conversations?.map((conv: any) => ({
-      ...conv,
-      cliente_nome: conv.cliente_nome || 'Nome não informado'
-    })) || [];
-    
-    // Calcular métricas agregadas
-    const metrics = calculateMetrics(processedConversations);
-
+    // Este bloco nunca será executado porque forçamos o erro acima
+    // Mantido apenas para compatibilidade futura quando a RPC for corrigida
     return NextResponse.json({
       success: true,
-      conversations: processedConversations,
-      metrics,
+      conversations: [],
+      metrics: { totalConversations: 0, avgConversionRate: 0, receitaBruta: 0, totalRevenue: 0, avgTicket: 0, avgResponseTime: 0, alertsByPriority: { critical: 0, high: 0, medium: 0, low: 0 } },
       period
     });
 
@@ -258,8 +241,16 @@ function calculateMetrics(conversations: any[]) {
         totalConversionScore += analysis.purchase_intent.score;
       }
 
-      // Receita estimada - tratar diferentes formatos de resposta da IA
+      // Receita gerada (já confirmada) e receita estimada
+      const receitaGerada = analysis.receita_financeira?.receita_gerada;
       const ticketValue = analysis.sales_prediction?.estimated_ticket_value;
+      
+      // Adicionar receita já gerada ao total
+      if (typeof receitaGerada === 'number' && !isNaN(receitaGerada) && receitaGerada > 0 && receitaGerada <= 500000) {
+        totalRevenue += receitaGerada;
+        totalTicketValues += receitaGerada;
+        validTicketCount++;
+      }
       if (ticketValue && ticketValue !== 'N/A' && ticketValue !== 'não_aplicável' && 
           ticketValue !== 'Não especificado na conversa' && ticketValue !== '[Não especificado na conversa]' &&
           ticketValue !== 'INDEFINIDO' && ticketValue !== 'Não informado' && ticketValue !== 'indefinido' && 
@@ -319,7 +310,8 @@ function calculateMetrics(conversations: any[]) {
   return {
     totalConversations: conversations.length,
     avgConversionRate: conversations.length > 0 ? (totalConversionScore / conversations.length) * 100 : 0,
-    totalRevenue,
+    receitaBruta: totalRevenue, // Usar o mesmo nome que o frontend espera
+    totalRevenue, // Manter backward compatibility
     avgTicket: validTicketCount > 0 ? totalTicketValues / validTicketCount : 0,
     avgResponseTime: validResponseCount > 0 ? totalResponseTime / validResponseCount : 0,
     alertsByPriority: alertCounts

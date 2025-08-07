@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { clienteService } from '@/services/cliente.service';
 import { authService } from '@/services/auth.service';
 import { dashboardService } from '@/services/dashboard.service';
+import { databaseService } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,10 +84,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Debug: log empresa info
-    console.log('Buscando clientes para empresa:', empresaId);
-    console.log('Filtros:', { nome, orderBy, page, limit });
-
     // Buscar clientes
     const clientesData = await clienteService.getClientesByEmpresa(empresaId, {
       nome,
@@ -94,8 +91,6 @@ export async function GET(request: NextRequest) {
       page,
       limit,
     });
-
-    console.log('Resultado dos clientes:', clientesData);
 
     return NextResponse.json({
       success: true,

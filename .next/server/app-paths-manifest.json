@@ -1,5 +1,13 @@
 {
-  "/login/page": "app/login/page.js",
+  "/api/clientes/route": "app/api/clientes/route.js",
+  "/api/clientes/[telefone]/analysis/route": "app/api/clientes/[telefone]/analysis/route.js",
+  "/api/analysis/conversations/route": "app/api/analysis/conversations/route.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/empresas/route": "app/api/empresas/route.js",
+  "/api/auth/completar-perfil/route": "app/api/auth/completar-perfil/route.js",
+  "/(dashboard)/dashboard/clientes/page": "app/(dashboard)/dashboard/clientes/page.js",
+  "/(dashboard)/dashboard/analysis/page": "app/(dashboard)/dashboard/analysis/page.js",
+  "/(dashboard)/dashboard/analise/page": "app/(dashboard)/dashboard/analise/page.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/dashboard/analise/page": "app/(dashboard)/dashboard/analise/page.js"
+  "/(dashboard)/dashboard/empresa/page": "app/(dashboard)/dashboard/empresa/page.js"
 }

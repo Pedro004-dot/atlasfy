@@ -1,13 +1,27 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MessageCircle, Calendar, User, Phone } from 'lucide-react';
+import { Search, Filter, MessageCircle, Calendar, User, Phone, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ClienteWithEmpresa, ClienteFilters, ClienteListResponse } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useEmpresa } from '@/contexts/EmpresaContext';
+import { ClienteAnalysisModal } from '@/components/cliente-analysis-modal';
+import { useToast } from '@/components/ui/toast';
+import { AnalysisInfoToast } from '@/components/ui/info-toast';
+
+interface ConversationAnalysis {
+  conversation_id: string;
+  cliente_telefone: string;
+  cliente_nome: string;
+  status: string;
+  created_at: string;
+  last_message_at: string;
+  message_count: number;
+  analysis_data: any;
+}
 
 interface ClienteListProps {
 }
@@ -31,6 +45,11 @@ export function ClienteList({}: ClienteListProps) {
     totalPages: 0,
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedConversation, setSelectedConversation] = useState<ConversationAnalysis | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
+  const [showInfoToast, setShowInfoToast] = useState(false);
+  const { addToast } = useToast();
 
   const loadClientes = async (currentFilters: ClienteFilters) => {
     try {
@@ -39,7 +58,6 @@ export function ClienteList({}: ClienteListProps) {
       
       // Get auth token from localStorage
       const token = localStorage.getItem('auth-token');
-      console.log('Token found:', !!token);
       if (!token) {
         throw new Error('Usuário não autenticado');
       }
@@ -52,8 +70,6 @@ export function ClienteList({}: ClienteListProps) {
       if (currentFilters.page) queryParams.append('page', currentFilters.page.toString());
       if (currentFilters.limit) queryParams.append('limit', currentFilters.limit.toString());
 
-      console.log('Making request to:', `/api/clientes?${queryParams.toString()}`);
-      
       const response = await fetch(`/api/clientes?${queryParams.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -61,17 +77,12 @@ export function ClienteList({}: ClienteListProps) {
         },
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.log('Error data:', errorData);
         throw new Error(errorData.message || 'Erro ao carregar clientes');
       }
 
       const data = await response.json();
-      console.log('Success data:', data);
       const clientesResponse: ClienteListResponse = data.data;
       
       setClientes(clientesResponse.clientes);
@@ -82,7 +93,6 @@ export function ClienteList({}: ClienteListProps) {
         totalPages: clientesResponse.totalPages,
       });
     } catch (err) {
-      console.error('Error loading clientes:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar clientes');
     } finally {
       setLoading(false);
@@ -117,11 +127,67 @@ export function ClienteList({}: ClienteListProps) {
     loadClientes(newFilters);
   };
 
+  // Handle análise de cliente
+  const handleClienteAnalysis = async (telefone: string) => {
+    try {
+      setLoadingAnalysis(true);
+      const token = localStorage.getItem('auth-token');
+      if (!token) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const encodedTelefone = encodeURIComponent(telefone);
+      const response = await fetch(
+        `/api/clientes/${encodedTelefone}/analysis?empresa_id=${empresaSelecionada}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setShowInfoToast(true);
+          // Auto-close after 8 seconds
+          setTimeout(() => setShowInfoToast(false), 8000);
+          return;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao carregar análise');
+      }
+
+      const data = await response.json();
+      setSelectedConversation(data.conversation);
+      setIsModalOpen(true);
+      
+      addToast({
+        type: 'success',
+        message: 'Análise carregada com sucesso!',
+        duration: 2000
+      });
+    } catch (err) {
+      console.error('Error loading analysis:', err);
+      addToast({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Erro ao carregar análise',
+        duration: 5000
+      });
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  };
+
   // Handle WhatsApp message
   const handleWhatsAppMessage = (telefone: string, nome: string) => {
     try {
       if (!telefone) {
-        alert('Telefone não disponível');
+        addToast({
+          type: 'warning',
+          message: 'Telefone não disponível para este cliente',
+          duration: 3000
+        });
         return;
       }
 
@@ -139,7 +205,11 @@ export function ClienteList({}: ClienteListProps) {
       
       window.open(whatsappUrl, '_blank');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao enviar mensagem');
+      addToast({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Erro ao enviar mensagem',
+        duration: 4000
+      });
     }
   };
 
@@ -148,6 +218,12 @@ export function ClienteList({}: ClienteListProps) {
     if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedConversation(null);
   };
 
   // Show loading while authenticating
@@ -205,7 +281,7 @@ export function ClienteList({}: ClienteListProps) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Pesquisar por nome..."
+                placeholder="Pesquisar por nome ou telefone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -304,9 +380,9 @@ export function ClienteList({}: ClienteListProps) {
                           <div className="text-sm font-medium text-foreground">
                             {cliente.nome || 'Nome não informado'}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          {/* <div className="text-sm text-muted-foreground">
                             {cliente.cliente_empresa.total_mensagens} mensagens
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </td>
@@ -321,19 +397,31 @@ export function ClienteList({}: ClienteListProps) {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleWhatsAppMessage(
-                          cliente.telefone || '',
-                          cliente.nome || 'cliente'
-                        )}
-                        disabled={!cliente.telefone}
-                        className="flex items-center space-x-2"
-                      >
-                        <MessageCircle className="h-4 w-4 text-green-500" />
-                        <span>WhatsApp</span>
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleClienteAnalysis(cliente.telefone || '')}
+                          disabled={!cliente.telefone || loadingAnalysis}
+                          className="flex items-center space-x-2"
+                        >
+                          <BarChart3 className="h-4 w-4 text-blue-500" />
+                          <span>{loadingAnalysis ? 'Carregando...' : 'Análise'}</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleWhatsAppMessage(
+                            cliente.telefone || '',
+                            cliente.nome || 'cliente'
+                          )}
+                          disabled={!cliente.telefone}
+                          className="flex items-center space-x-2"
+                        >
+                          <MessageCircle className="h-4 w-4 text-green-500" />
+                          <span>WhatsApp</span>
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -386,6 +474,19 @@ export function ClienteList({}: ClienteListProps) {
           </div>
         </div>
       )}
+
+      {/* Modal de Análise do Cliente */}
+      <ClienteAnalysisModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        conversation={selectedConversation}
+      />
+      
+      {/* Toast de Informação sobre Análise */}
+      <AnalysisInfoToast
+        isVisible={showInfoToast}
+        onClose={() => setShowInfoToast(false)}
+      />
     </div>
   );
 }

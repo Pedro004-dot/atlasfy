@@ -229,21 +229,16 @@ export default function AnalisePage() {
       conversations.forEach((conv) => {
         const receitaGerada = conv.analysis_data?.receita_financeira?.receita_gerada || 0;
         
-        // Log para debug
         if (receitaGerada > 0) {
-          console.log(`[RevenueCalculation] Conversa ${conv.conversation_id}: receita_gerada = ${receitaGerada}`);
           validConversations++;
         }
         
         // Validação de segurança - evitar valores absurdos
         if (typeof receitaGerada === 'number' && !isNaN(receitaGerada) && receitaGerada > 0 && receitaGerada <= 100000) {
           total += receitaGerada;
-        } else if (receitaGerada > 100000) {
-          console.warn(`[RevenueCalculation] Valor suspeito ignorado: ${receitaGerada} da conversa ${conv.conversation_id}`);
         }
       });
       
-      console.log(`[RevenueCalculation] Total receita bruta: ${total} de ${validConversations} conversas válidas`);
       return total;
     },
 
@@ -351,12 +346,11 @@ export default function AnalisePage() {
       if (!data.success) {
         throw new Error(data.message || 'Erro ao carregar dados');
       }
-      console.log('[AnalisePage] data:', data);
       const conversationsData = data.conversations || [];
       setConversations(conversationsData);
       
-      // Usar o Service Layer para calcular métricas
-      const calculatedMetrics = RevenueCalculationService.calculateAllMetrics(conversationsData);
+      // Usar métricas calculadas pela API ou calcular localmente como fallback
+      const calculatedMetrics = data.metrics || RevenueCalculationService.calculateAllMetrics(conversationsData);
       setMetrics(calculatedMetrics);
     } catch (err: any) {
       console.error('Erro ao carregar análise:', err);
@@ -453,12 +447,10 @@ export default function AnalisePage() {
       const normalizedConv = normalizeConversation(conv);
       const stage = getConversationStage(normalizedConv);
       
-      console.log(`[AnalisePage] Conversa ${conv.conversation_id} -> Estágio: ${stage}`);
       
       if (stages[stage]) {
         stages[stage].push(normalizedConv);
       } else {
-        console.warn(`[AnalisePage] Estágio não reconhecido: ${stage}`);
         stages['OUTROS'].push(normalizedConv);
       }
     });
@@ -478,7 +470,6 @@ export default function AnalisePage() {
       if (typeof receitaEstimada === 'number' && !isNaN(receitaEstimada) && receitaEstimada > 0 && receitaEstimada <= 100000) {
         total += receitaEstimada;
       } else if (receitaEstimada > 100000) {
-        console.warn(`[StageRevenue] Valor suspeito ignorado no estágio ${stageKey}: ${receitaEstimada} da conversa ${conv.conversation_id}`);
       }
     });
     
@@ -553,10 +544,6 @@ export default function AnalisePage() {
       return 'R$ 0,00';
     }
     
-    // Log para debug em valores muito altos
-    if (numericValue > 100000) {
-      console.warn(`[formatCurrency] Valor alto detectado: ${numericValue} (original: ${value})`);
-    }
     
     // Formatação final
     try {
@@ -565,7 +552,6 @@ export default function AnalisePage() {
         currency: 'BRL'
       }).format(numericValue);
     } catch (error) {
-      console.error(`[formatCurrency] Erro na formatação:`, error, 'valor:', numericValue);
       return `R$ ${numericValue.toFixed(2).replace('.', ',')}`;
     }
   };

@@ -2,7 +2,7 @@ import { databaseService } from '@/lib/database';
 import { Cliente, ClienteWithEmpresa, ClienteFilters, ClienteListResponse } from '@/types';
 
 export interface IClienteRepository {
-  getAllClientesByEmpres(empresaId: string): Promise<ClienteListResponse>;
+  getAllClientesByEmpresa(empresaId: string): Promise<ClienteListResponse>;
   getClientesByEmpresa(empresaId: string, filters: ClienteFilters): Promise<ClienteListResponse>;
   getClienteById(id: string): Promise<ClienteWithEmpresa | null>;
   createCliente(data: Omit<Cliente, 'id' | 'created_at' | 'updated_at'>): Promise<Cliente>;
@@ -11,7 +11,7 @@ export interface IClienteRepository {
 }
 
 export class ClienteRepository implements IClienteRepository {
-  async getAllClientesByEmpres(empresaId: string): Promise<ClienteListResponse> {
+  async getAllClientesByEmpresa(empresaId: string): Promise<ClienteListResponse> {
     const supabase = databaseService.getClient();
     const { data, error } = await supabase
       .from('cliente')
@@ -36,9 +36,11 @@ export class ClienteRepository implements IClienteRepository {
       .select('*', { count: 'exact' })
       .eq('empresa_id', empresaId);
 
-    // 2. Filtro por nome
+    // 2. Filtros por nome e telefone
     if (nome) {
-      query = query.ilike('nome', `%${nome}%`);
+      // Buscar tanto por nome quanto por telefone
+      const searchPattern = `%${nome}%`;
+      query = query.or(`nome.ilike.${searchPattern},telefone.ilike.${searchPattern}`);
     }
 
     // 3. Ordenação
